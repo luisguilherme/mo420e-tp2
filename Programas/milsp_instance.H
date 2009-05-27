@@ -9,7 +9,7 @@
 typedef std::vector<int> vi;
 typedef std::vector<vi> vvi;
 
-class MILSPInstance {
+class MILSPInstance : public Instance {
   std::string nome;
   
   int t; //total de tempo
