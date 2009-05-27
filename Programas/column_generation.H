@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include "instance.H"
+#include "integer_program.H"
 #include "xprs.h"
 
 typedef struct {
@@ -45,11 +46,11 @@ protected:
   inline bool isIntegerSol(XPRSprob prob);
 
 public:
-  ColumnGeneration(Instance& instance);
-  int loadModel(Instance&, XPRSprob, std::string);
-  void solveReduced();
+  ColumnGeneration(IntegerProgram& ip, IntegerProgram& pricing);
+  int loadModel(IntegerProgram&, XPRSprob, std::string);
+  void solveRestricted();
   void solvePricing(Instance& instance);
-  void configureModel(int, Instance&);
+  void configureModel(int, IntegerProgram& ip, IntegerProgram& pricing);
   //void detSolvePricing();
 };
 void errormsg(const char*, int, int, XPRSprob);

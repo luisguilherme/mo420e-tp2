@@ -1,6 +1,23 @@
 #include "column_generation.H"
 
-void ColumnGeneration::solveReduced() {
+/* Flow da geração de colunas: (Wolsey pp 188-194)
+   lê todos os dados da entrada bla bla bla
+   escolhe as colunas
+   while (1) {
+   resolve o problema restrito (limitante primal do mestre relaxado)
+   verifica se é inteira (limitante primal do mestre)   
+   resolve o problema de pricing (verifica se restrito é dual-viável)
+   verifica se a solução do restrito é ótima (pricing)
+     se não, gera colunas; continue
+   verifica se é inteira (ótima para o PI)
+     se sim, break;
+     se não, ???;
+   }
+
+*/
+
+
+void ColumnGeneration::solveRestricted() {
   /*========================================================================= */
   /* resolve o problema mestre reduzido                                       */
   /*========================================================================= */
@@ -67,7 +84,7 @@ void ColumnGeneration::solvePricing(Instance& instance) {
   printf("\nTempo do pricing: %lf\n", tempo);
 }
 
-ColumnGeneration::ColumnGeneration(Instance& instance) {
+ColumnGeneration::ColumnGeneration(IntegerProgram& ip, IntegerProgram& pricing) {
   /* ========================================= */
   /* inicializacão do XPRESS                   */
   /* ========================================= */
@@ -82,9 +99,9 @@ ColumnGeneration::ColumnGeneration(Instance& instance) {
 }
 
 /* Cria, Carrega e configura cada modelo */
-void ColumnGeneration::configureModel(int formato, Instance& instance) {
+void ColumnGeneration::configureModel(int formato, IntegerProgram& ip, IntegerProgram& pricing) {
   int xpress_ret;
-
+  
   /* "cria" o problema  mestre reduzido */
   xpress_ret=XPRScreateprob(&probMestre);
   if (xpress_ret) 
@@ -107,7 +124,7 @@ void ColumnGeneration::configureModel(int formato, Instance& instance) {
     errormsg("Main: Erro ao tentar setar o XPRS_MAXTIME.\n",__LINE__,xpress_ret, probPricing);
   
   /* carga do modelo de pricing */
-  xpress_ret=loadModel(instance,probPricing,"Pricing");
+  xpress_ret=loadModel(pricing,probPricing,"Pricing");
   if (xpress_ret) errormsg("Main: Erro na carga do modelo.",__LINE__,xpress_ret, probPricing);
   
   /* salva um arquivo ".lp" com o LP original */
@@ -154,7 +171,7 @@ void ColumnGeneration::configureModel(int formato, Instance& instance) {
     errormsg("Main: Erro ao tentar setar o XPRS_MAXTIME.\n",__LINE__,xpress_ret, probMestre);
   
   /* carga do problema mestre */
-  xpress_ret=loadModel(instance, probMestre, "Mestre");
+  xpress_ret=loadModel(ip, probMestre, "Mestre");
   if (xpress_ret) errormsg("Main: Erro na carga do modelo.",__LINE__,xpress_ret, probMestre);
   
   /* Desabilita o PRESOLVE */
@@ -280,21 +297,18 @@ inline bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
    getParam) 
 
    Mais importante, podemos usar o mesmo método para carregar o
-   problema mestre e o problema de pricing. Neste caso não sei se o
-   mais propício é ele receber "Instance" ou "IntegerProgram" como
-   argumento.
-
-   Os antigos CargaProblemaPricing e CargaProblemaMestre serão
-   transformados em loadModel   
+   problema mestre e o problema de pricing. Os antigos
+   CargaProblemaPricing e CargaProblemaMestre serão transformados em
+   loadModel  
 */
-int ColumnGeneration::loadModel(Instance& instance,XPRSprob prob,std::string name) {
+int ColumnGeneration::loadModel(IntegerProgram& ip,XPRSprob prob,std::string name) {
   int ncol, nrow,nmip; 
   char* rowtype,* miptype;
   double* rhs,* obj,* lb,* ub,* matval;
   int* colbeg,* rowidx,*mipcol;
   bool relaxed;
-  instance.getParam(ncol,nrow,rowtype,rhs,obj,colbeg,rowidx,matval,lb,
-		    ub,nmip,miptype,mipcol,relaxed);
+  ip.getParam(ncol,nrow,rowtype,rhs,obj,colbeg,rowidx,matval,lb,
+	      ub,nmip,miptype,mipcol,relaxed);
   if (relaxed) {
     xpress_ret = XPRSloadlp(prob,name.c_str(),ncol,nrow,rowtype,rhs,
 			    NULL,obj,colbeg,NULL,rowidx,matval,lb,ub);
