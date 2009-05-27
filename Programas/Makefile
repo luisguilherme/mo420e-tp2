@@ -2,7 +2,7 @@ CXX = c++
 CFLAGS = -Wall -g -Ixpress_headers
 
 headers = milsp_instance.H instance.H column_generation.H
-objects = milsp_instance.o milsp.o column_generation.o
+objects = milsp_instance.o milsp.o column_generation.o 
 sources = $(objects:.o=.cc)
 
 all: $(objects)
