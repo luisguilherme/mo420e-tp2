@@ -13,7 +13,6 @@
      se sim, break;
      se não, ???;
    }
-
 */
 
 
@@ -84,7 +83,7 @@ void ColumnGeneration::solvePricing(Instance& instance) {
   printf("\nTempo do pricing: %lf\n", tempo);
 }
 
-ColumnGeneration::ColumnGeneration(IntegerProgram& ip, IntegerProgram& pricing) {
+ColumnGeneration::ColumnGeneration() {
   /* ========================================= */
   /* inicializacão do XPRESS                   */
   /* ========================================= */

@@ -46,7 +46,7 @@ protected:
   inline bool isIntegerSol(XPRSprob prob);
 
 public:
-  ColumnGeneration(IntegerProgram& ip, IntegerProgram& pricing);
+  ColumnGeneration();
   int loadModel(IntegerProgram&, XPRSprob, std::string);
   void solveRestricted();
   void solvePricing(Instance& instance);
