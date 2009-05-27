@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
+#include "instance.H"
 
 typedef std::vector<int> vi;
 typedef std::vector<vi> vvi;
@@ -25,7 +26,8 @@ class MILSPInstance : public Instance {
   
 public:
   //MILSPInstance(string filename);
-  MILSPInstance(FILE* fp);
+  //MILSPInstance(FILE* fp);
+  virtual void loadFrom(FILE* fp);
   //MILSPInstance(vvi& d, vi& C, vvi& p, vvi& h, vvi& f);
   
 };

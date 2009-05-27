@@ -1,16 +1,22 @@
 #ifndef __COLUMN_GENERATION_H__
 #define __COLUMN_GENERATION_H__
 
+#define MAX_CPU_TIME -1800 //trocar
+#define MAX_POOL 20 //trocar
+#define EPSILON 1e-9 //trocar
+
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include <ctime>
 #include <vector>
+#include <string>
 #include "instance.H"
 #include "xprs.h"
 
 typedef struct {
   /* para pool de colunas */
-  std::vector<double> pool; /* pool de colunas geradas pelo pricing */
+  std::vector<std::vector<double> > pool; /* pool de colunas geradas pelo pricing */
   int totPool;/* total de colunas inseridas no Pool de colunas */
   /* usados na otimizacao do problema mestre e do pricing */
   std::vector<double> xstar;/* armazena a melhor solucao inteira encontrada pelo  pricing */
@@ -18,21 +24,34 @@ typedef struct {
 } solution;
 
 class ColumnGeneration {
-  std::vector<double> dual;
+  double* dual;
   solution sol;
   clock_t t1, t2;
   XPRSprob probMestre;
   XPRSprob probPricing;
+  int tPMR;
 
   //so pra compilar, depois vejo
   int xpress_ret;
-  double tempo, tempoLP;
+  double tempo, tempoLP, tempoPricing;
   double z_PMR;
+  double melhorPrimal;
+  int totalInteiros;
+  int itmelhorPrimal;
+  int it;
+  int* mindex;
+
+protected:
+  inline bool isIntegerSol(XPRSprob prob);
 
 public:
+  ColumnGeneration(Instance& instance);
+  int loadModel(Instance&, XPRSprob, std::string);
   void solveReduced();
   void solvePricing(Instance& instance);
+  void configureModel(int, Instance&);
   //void detSolvePricing();
 };
-
+void errormsg(const char*, int, int, XPRSprob);
+void XPRS_CC salvaMelhorSol(XPRSprob prob, void *psol);
 #endif

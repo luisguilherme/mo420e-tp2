@@ -1,7 +1,7 @@
 #include "milsp_instance.H"
 
 
-MILSPInstance::MILSPInstance(FILE* fp) {
+void MILSPInstance::loadFrom(FILE* fp) {
   char buffer[256];
   fscanf(fp," %[^\n]",buffer);
   nome = std::string(buffer);
