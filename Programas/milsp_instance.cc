@@ -9,7 +9,7 @@ MILSPInstance::MILSPInstance(FILE* fp) {
   C = vi(t);
   for(int k=0;k<t;k++) {
     int ct, tt;
-    fscanf(fp," %d %d",&ct,&tt);
+    fscanf(fp," %d %d",&tt,&ct);
     assert(tt == k);
     C[k] = ct;
   }

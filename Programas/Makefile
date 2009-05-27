@@ -2,7 +2,7 @@ CXX = c++
 CFLAGS = -Wall -g
 
 headers = milsp_instance.H
-objects = milsp_instance.o
+objects = milsp_instance.o milsp.o
 sources = $(objects:.o=.cc)
 
 all: $(objects)

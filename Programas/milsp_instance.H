@@ -23,6 +23,7 @@ class MILSPInstance {
   vvi h; //custo de armazenagem
   vvi p; //custo de produção
   
+public:
   //MILSPInstance(string filename);
   MILSPInstance(FILE* fp);
   //MILSPInstance(vvi& d, vi& C, vvi& p, vvi& h, vvi& f);
