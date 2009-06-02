@@ -11,6 +11,9 @@ typedef std::vector<int> vi;
 typedef std::vector<vi> vvi;
 
 class MILSPInstance : public Instance {
+  
+public:
+
   std::string nome;
   
   int t; //total de tempo
@@ -23,8 +26,7 @@ class MILSPInstance : public Instance {
   vvi f; //custo de setup
   vvi h; //custo de armazenagem
   vvi p; //custo de produção
-  
-public:
+
   //MILSPInstance(string filename);
   //MILSPInstance(FILE* fp);
   virtual void loadFrom(FILE* fp);
