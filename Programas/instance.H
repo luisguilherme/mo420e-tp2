@@ -5,11 +5,9 @@
 
 class Instance {
 public:
-  virtual double* getNewObj(double* dual, int* mindex);
-  virtual void loadFrom(FILE* fp);
-  virtual void getParam(int&,int&,char*,double*,double*,int*,int*,
-			double*,double*,double*,int&,char*,int*,bool&);
-  virtual int dim(void);
+  virtual double* getNewObj(double* dual, int* mindex) { return NULL; }
+  virtual void loadFrom(FILE* fp) { }
+  virtual int dim(void) { return 0; }
 };
 
 #endif

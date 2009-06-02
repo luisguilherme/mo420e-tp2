@@ -1,5 +1,6 @@
 #include "milsp_instance.H"
 #include "integer_program.H"
+#include "column_generation.H"
 #include <cstdio>
 #include <cstdlib>
 #define EPS 1e-9
@@ -12,6 +13,7 @@ class MILSP : public IntegerProgram {
   std::vector<double> cost; //tamanho dinâmico
   int ncols;
   MILSPInstance instance;
+public:
   Instance& getInstance() { return instance; }
   void getParam(int& ncol,int& nrow,char* rowtype,double* rhs,
 		double* obj,int* colbeg, int* rowidx,
@@ -120,5 +122,9 @@ int main(int argc, char* argv[]) {
   FILE* fp = fopen(argv[1],"r");
   MILSPInstance mi;
   mi.loadFrom(fp);
+  MILSP prob(mi);
+  ColumnGeneration cg;
+  cg.configureModel(0,prob,prob);
+  cg.solveRestricted();
   return(0);
 }

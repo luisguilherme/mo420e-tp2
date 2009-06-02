@@ -32,6 +32,9 @@ public:
   virtual void loadFrom(FILE* fp);
   //MILSPInstance(vvi& d, vi& C, vvi& p, vvi& h, vvi& f);
   
+  /* corrigir estas merdas depois */
+  virtual double* getNewObj(double* dual, int* mindex) { return NULL; }
+  virtual int dim(void) { return 0; }
 };
 
 #endif
