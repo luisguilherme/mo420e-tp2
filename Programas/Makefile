@@ -1,5 +1,5 @@
 CXX = c++
-CFLAGS = -Wall -g -Ixpress_headers
+CFLAGS = -Wall -g -I$(XPRESSDIR)/include 
 
 headers = milsp_instance.H instance.H column_generation.H
 objects = milsp_instance.o milsp.o column_generation.o 
