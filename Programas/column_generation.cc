@@ -118,44 +118,44 @@ void ColumnGeneration::configureModel(int formato, IntegerProgram& ip, IntegerPr
 
   /* ALTERAR DEPOIS!!!  */
   /* limita o tempo de execucao */
-  xpress_ret=XPRSsetintcontrol(probPricing,XPRS_MAXTIME,MAX_CPU_TIME);
-  if (xpress_ret) 
-    errormsg("Main: Erro ao tentar setar o XPRS_MAXTIME.\n",__LINE__,xpress_ret, probPricing);
+  // xpress_ret=XPRSsetintcontrol(probPricing,XPRS_MAXTIME,MAX_CPU_TIME);
+  // if (xpress_ret) 
+  //   errormsg("Main: Erro ao tentar setar o XPRS_MAXTIME.\n",__LINE__,xpress_ret, probPricing);
   
-  /* carga do modelo de pricing */
-  xpress_ret=loadModel(pricing,probPricing,"Pricing");
-  if (xpress_ret) errormsg("Main: Erro na carga do modelo.",__LINE__,xpress_ret, probPricing);
+  // /* carga do modelo de pricing */
+  // xpress_ret=loadModel(pricing,probPricing,"Pricing");
+  // if (xpress_ret) errormsg("Main: Erro na carga do modelo.",__LINE__,xpress_ret, probPricing);
   
-  /* salva um arquivo ".lp" com o LP original */
-  xpress_ret=XPRSwriteprob(probPricing,"Pricing","l");
-  if (xpress_ret) 
-    errormsg("Main: Erro na chamada da rotina XPRSwriteprob.\n",__LINE__,xpress_ret, probPricing);
+  // /* salva um arquivo ".lp" com o LP original */
+  // xpress_ret=XPRSwriteprob(probPricing,"Pricing","l");
+  // if (xpress_ret) 
+  //   errormsg("Main: Erro na chamada da rotina XPRSwriteprob.\n",__LINE__,xpress_ret, probPricing);
   
-  /* Desabilita o PRESOLVE */
-  xpress_ret=XPRSsetintcontrol(probPricing,XPRS_PRESOLVE,0);
-  if (xpress_ret) 
-    errormsg("Main: Erro ao desabilitar o presolve.",__LINE__,xpress_ret, probPricing);
+  // /* Desabilita o PRESOLVE */
+  // xpress_ret=XPRSsetintcontrol(probPricing,XPRS_PRESOLVE,0);
+  // if (xpress_ret) 
+  //   errormsg("Main: Erro ao desabilitar o presolve.",__LINE__,xpress_ret, probPricing);
   
-  /* impressão para conferência */
-  xpress_ret=XPRSsetintcontrol(probPricing,XPRS_MIPLOG,formato);
-  if (xpress_ret) 
-    errormsg("Main: Erro ao setar MIPLOG.",__LINE__,xpress_ret, probPricing);
+  // /* impressão para conferência */
+  // xpress_ret=XPRSsetintcontrol(probPricing,XPRS_MIPLOG,formato);
+  // if (xpress_ret) 
+  //   errormsg("Main: Erro ao setar MIPLOG.",__LINE__,xpress_ret, probPricing);
   
-  /* Desabilita heuristica */
-  xpress_ret=XPRSsetintcontrol(probPricing,XPRS_HEURSTRATEGY,0);
-  if (xpress_ret) 
-    errormsg("Main: Erro ao tentar setar o XPRS_CUTSTRATEGY.\n",__LINE__,xpress_ret, probPricing);
+  // /* Desabilita heuristica */
+  // xpress_ret=XPRSsetintcontrol(probPricing,XPRS_HEURSTRATEGY,0);
+  // if (xpress_ret) 
+  //   errormsg("Main: Erro ao tentar setar o XPRS_CUTSTRATEGY.\n",__LINE__,xpress_ret, probPricing);
   
-  /* Desabilita a separacao de cortes do XPRESS.  */
-  xpress_ret=XPRSsetintcontrol(probPricing,XPRS_CUTSTRATEGY,0);
-  if (xpress_ret) 
-    errormsg("Main: Erro ao tentar setar o XPRS_CUTSTRATEGY.\n",__LINE__,xpress_ret, probPricing);
+  // /* Desabilita a separacao de cortes do XPRESS.  */
+  // xpress_ret=XPRSsetintcontrol(probPricing,XPRS_CUTSTRATEGY,0);
+  // if (xpress_ret) 
+  //   errormsg("Main: Erro ao tentar setar o XPRS_CUTSTRATEGY.\n",__LINE__,xpress_ret, probPricing);
   
-  /* callback para salvar a melhor solucao inteira encontrada */
-  xpress_ret=XPRSsetcbintsol(probPricing,salvaMelhorSol, &sol);
-  if (xpress_ret) 
-    errormsg("Main: Erro na chamada da rotina XPRSsetcbintsol\
-			.\n",__LINE__,xpress_ret, probPricing);
+  // /* callback para salvar a melhor solucao inteira encontrada */
+  // xpress_ret=XPRSsetcbintsol(probPricing,salvaMelhorSol, &sol);
+  // if (xpress_ret) 
+  //   errormsg("Main: Erro na chamada da rotina XPRSsetcbintsol\
+  // 			.\n",__LINE__,xpress_ret, probPricing);
   
   /* ===================================================================================== */
   /* carga e Configuracao dos parametros de controle do XPRESS para o problema mestre red  */
@@ -306,8 +306,8 @@ int ColumnGeneration::loadModel(IntegerProgram& ip,XPRSprob prob,std::string nam
   double* rhs,* obj,* lb,* ub,* matval;
   int* colbeg,* rowidx,*mipcol;
   bool relaxed;
-  ip.getParam(ncol,nrow,rowtype,rhs,obj,colbeg,rowidx,matval,lb,
-	      ub,nmip,miptype,mipcol,relaxed);
+  ip.getParam(ncol,nrow,&rowtype,&rhs,&obj,&colbeg,&rowidx,&matval,&lb,
+	      &ub,nmip,&miptype,&mipcol,relaxed);
   if (relaxed) {
     xpress_ret = XPRSloadlp(prob,name.c_str(),ncol,nrow,rowtype,rhs,
 			    NULL,obj,colbeg,NULL,rowidx,matval,lb,ub);

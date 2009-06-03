@@ -15,10 +15,10 @@ class MILSP : public IntegerProgram {
   MILSPInstance instance;
 public:
   Instance& getInstance() { return instance; }
-  void getParam(int& ncol,int& nrow,char* rowtype,double* rhs,
-		double* obj,int* colbeg, int* rowidx,
-		double* matval,double* lb,double* ub,
-		int& nmip,char* miptype,int* mipcol,bool& relaxed) {
+  void getParam(int& ncol,int& nrow,char** rowtype,double** rhs,
+		double** obj,int** colbeg, int** rowidx,
+		double** matval,double** lb,double** ub,
+		int& nmip,char** miptype,int** mipcol,bool& relaxed) {
 
     relaxed = true;
     
@@ -26,28 +26,28 @@ public:
     ncol = ncols;
     nrow = 2*instance.t + instance.m;
     nmip = 0; miptype = NULL; mipcol = NULL;
-    rowtype = (char *) calloc(nrow,sizeof(char));
-    rhs = (double *) calloc(nrow,sizeof(double));
-    obj = (double *) calloc(ncol,sizeof(double));
-    colbeg = (int *) calloc(ncol,sizeof(int));
-    lb = (double *) calloc(ncol,sizeof(double));
-    ub = (double *) calloc(ncol,sizeof(double));
+    *rowtype = (char *) calloc(nrow,sizeof(char));
+    *rhs = (double *) calloc(nrow,sizeof(double));
+    *obj = (double *) calloc(ncol,sizeof(double));
+    *colbeg = (int *) calloc(ncol+1,sizeof(int));
+    *lb = (double *) calloc(ncol,sizeof(double));
+    *ub = (double *) calloc(ncol,sizeof(double));
 
     /* Gerando tipo de cada restrição e RHS */
     int nnzero = 0;
     for(int i=0;i<instance.t;i++) {
-      rowtype[i] = 'L';
-      rhs[i] = 1;
+      (*rowtype)[i] = 'L';
+      (*rhs)[i] = 1;
     }
 
     for(int pos = instance.t, i=0;i<instance.t;i++,pos++) {
-      rowtype[pos] = 'L';
-      rhs[pos] = instance.C[i];
+      (*rowtype)[pos] = 'L';
+      (*rhs)[pos] = instance.C[i];
     }
     
     for(int pos = 2*instance.t, i = 0;i<instance.m;pos++,i++) {
-      rowtype[pos] = 'E';
-      rhs[pos] = 1;
+      (*rowtype)[pos] = 'E';
+      (*rhs)[pos] = 1;
     }
     
     int matsize = 0;
@@ -56,21 +56,22 @@ public:
 	matsize += NONZERO(columns[col][row]); 
     
     /* aloca matriz esparsa */
-    matval = (double *) calloc(matsize,sizeof(double));
-    rowidx = (int *) calloc(matsize,sizeof(int));
+    *matval = (double *) calloc(matsize,sizeof(double));
+    *rowidx = (int *) calloc(matsize,sizeof(int));
 
     /* Transformando colunas em dados de entrada do XPress */
     for(int col=0;col<ncols;col++) {
-      obj[col] = cost[col];
-      colbeg[col] = nnzero;
-      lb[col] = 0; ub[col] = 1;
+      (*obj)[col] = cost[col];
+      (*colbeg)[col] = nnzero;
+      (*lb)[col] = 0; (*ub)[col] = 1;
       for(int row=0;row<sz(columns[col]);row++) {
 	if (NONZERO(columns[col][row])) {
-	  matval[nnzero] = columns[col][row];
-	  rowidx[nnzero++] = row;
+	  (*matval)[nnzero] = columns[col][row];
+	  (*rowidx)[nnzero++] = row;
 	}
       }
     }
+    (*colbeg)[ncols] = nnzero;
   }
   
 
@@ -107,7 +108,7 @@ public:
       }
 
       /* custo do esquema */ 
-      cost[col] = 0;
+      cost.pb(0);
       for(int inst=0;inst<instance.t;inst++) {
 	cost[col] += instance.p[col][inst]*x[col][inst] + instance.f[col][inst];
       }
