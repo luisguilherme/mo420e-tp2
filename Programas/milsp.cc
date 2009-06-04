@@ -81,16 +81,22 @@ public:
     }
 #endif 
   }
-  
+
+  /* TODO: Gerar planos de produção que sempre dão uma solução viável.
+           + Produzir sempre a capacidade maxima para todo item 
+	     em todo período
+	   + Com esses planos é sempre possível obter uma solução
+	     da Relaxação do Meste Restrito
+   */  
 
   MILSP(MILSPInstance& instance) {
     this->instance = instance;
     
     ncols = instance.m;
     vvi x(ncols);
+
     /* as primeiras colunas a serem geradas são esquemas de produção
        just-in-time, um para cada item, que é viável linearmente */
-    
     for(int sch=0;sch<instance.m;sch++) {
       for(int inst=0;inst<instance.t;inst++) {
 	x[sch].pb(instance.d[sch][inst]);
@@ -128,7 +134,7 @@ public:
 
 
 int main(int argc, char* argv[]) {
-  FILE* fp = fopen(argv[1],"r");
+  FILE* fp = fopen(argv[1], "r");
   MILSPInstance mi;
   mi.loadFrom(fp);
   MILSP prob(mi);
