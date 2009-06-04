@@ -72,6 +72,14 @@ public:
       }
     }
     (*colbeg)[ncols] = nnzero;
+#ifdef PRINTDEBUG
+    for(int i=0;i<nrow;i++) {
+      for(int j=0;j<ncol;j++) {
+	printf("%6.1lfl%d %c",columns[j][i],j,((j==ncol-1)?'=':'+'));
+      }
+      printf("%.1lf\n",(*rhs)[i]);
+    }
+#endif 
   }
   
 
