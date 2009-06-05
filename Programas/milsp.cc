@@ -3,6 +3,7 @@
 #include "column_generation.H"
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #define EPS 1e-9
 #define sz(a) (int) (a).size()
 #define pb push_back
@@ -92,11 +93,85 @@ public:
   MILSP(MILSPInstance& instance) {
     this->instance = instance;
     
+    ncols = instance.m*instance.t;
+    vvi x(ncols);
+    vvi y(ncols);
+    vvi s(ncols);
+    
+    vi demanda;
+    for(int prod=0;prod<instance.m;prod++) {
+      demanda.pb(0);
+      for(int inst=0;inst<instance.t;inst++) {
+	demanda[prod] += instance.d[prod][inst];
+      }
+    }
+    for(int prod=0,sch=0;prod<instance.m;prod++) {
+      for(int tp=0;tp<instance.t;tp++,sch++) {
+	int dem = demanda[prod];
+	for(int inst=0;inst<instance.t;inst++) {
+	  if (inst < tp) { 
+	    int toprod = instance.d[prod][inst];
+	    dem -= toprod;
+	    x[sch].pb(toprod);
+	    y[sch].pb(1);
+	    s[sch].pb(0);
+	  }
+	  else if (inst == tp) { //produz toda a demanda
+	    x[sch].pb(dem);
+	    y[sch].pb(1);
+	    dem -= instance.d[prod][inst];
+	    s[sch].pb(dem);
+	  }
+	  else {
+	    x[sch].pb(0);
+	    y[sch].pb(0);
+	    dem -= instance.d[prod][inst];
+	    s[sch].pb(dem);		    
+	  } // end else
+	} // end for inst
+      } // end for tp
+    } // end for prod
+      
+    columns = std::vector<std::vector<double> >(ncols);
+    for(int col=0;col<ncols;col++) {
+      columns[col] = std::vector<double>(2*instance.t + instance.m);
+    }
+    cost = std::vector<double>(ncols);
+    /* Gera as colunas baseado no x */
+    for(int prod=0,col=0;prod<instance.m;prod++) {
+      std::cerr << prod << std::endl;
+      for(int tp=0;tp<instance.t;tp++,col++) {
+	int row = 0;
+	std::cerr << "-- " << tp << std::endl;
+	// columns[col] = std::vector<double>(2*instance.t + instance.m);
+	for(int inst=0;inst<instance.t;inst++,row++) {
+	  columns[col][row] = y[col][inst];
+	}
+	for(int inst=0;inst<instance.t;inst++,row++) {
+	  columns[col][row] = x[col][inst];
+	}
+	for(int k=0;k<instance.m;k++,row++) {
+	  columns[col][row] = ((k == prod)?1:0);
+	}
+	
+	cost[col] = 0;
+	for(int inst=0;inst<instance.t;inst++) {
+	  cost[col] += instance.p[prod][inst]*x[col][inst] + instance.f[prod][inst]*y[col][inst] + instance.h[prod][inst]*s[col][inst];
+	}
+	
+	
+      } // end for tp
+    } // end for prod
+      
+  } // end MILSP
+    
+
+  void OldMILSP(MILSPInstance& instance) {
+    this->instance = instance;
+    
     ncols = instance.m;
     vvi x(ncols);
 
-    /* as primeiras colunas a serem geradas são esquemas de produção
-       just-in-time, um para cada item, que é viável linearmente */
     for(int sch=0;sch<instance.m;sch++) {
       for(int inst=0;inst<instance.t;inst++) {
 	x[sch].pb(instance.d[sch][inst]);
