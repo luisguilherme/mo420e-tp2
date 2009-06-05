@@ -105,6 +105,7 @@ public:
 	demanda[prod] += instance.d[prod][inst];
       }
     }
+
     for(int prod=0,sch=0;prod<instance.m;prod++) {
       for(int tp=0;tp<instance.t;tp++,sch++) {
 	int dem = demanda[prod];
@@ -136,6 +137,10 @@ public:
     for(int col=0;col<ncols;col++) {
       columns[col] = std::vector<double>(2*instance.t + instance.m);
     }
+
+    // custo "infinito" as colunas da identidade
+    double inf = 0.0;
+
     cost = std::vector<double>(ncols);
     /* Gera as colunas baseado no x */
     for(int prod=0,col=0;prod<instance.m;prod++) {
@@ -156,16 +161,27 @@ public:
 	
 	cost[col] = 0;
 	for(int inst=0;inst<instance.t;inst++) {
-	  cost[col] += instance.p[prod][inst]*x[col][inst] + instance.f[prod][inst]*y[col][inst] + instance.h[prod][inst]*s[col][inst];
+	  cost[col] += instance.p[prod][inst]*x[col][inst] +
+	    instance.f[prod][inst]*y[col][inst] +
+	    instance.h[prod][inst]*s[col][inst];
 	}
-	
-	
+
+	inf += cost[col];
+
       } // end for tp
     } // end for prod
+
+    /* Cola uma matriz identidade para garantir factibilidade do
+       problema restrito */
+    int mid = 2*instance.t + instance.m;
+    for (int i = 0; i < mid; i++) {
+      columns.push_back(std::vector<double>(mid, 0.0));
+      columns[ncols++][i] = 1.0;
+      cost.push_back(inf);
+    }
       
   } // end MILSP
-    
-
+ 
   void OldMILSP(MILSPInstance& instance) {
     this->instance = instance;
     
