@@ -95,7 +95,7 @@ int main(int argc, char * argv[]){
 
   /*=========================================================================*/
   /* resolve PMR, iterativamente
-     /*=========================================================================*/
+  /*=========================================================================*/
 
   /* inicializa var */
   it=0;
@@ -114,7 +114,7 @@ int main(int argc, char * argv[]){
   sol.xstar=(double *)malloc(cutting.m*sizeof(double));
   sol.zstar=XPRS_MINUSINFINITY; 
 	    
-  do{
+  do {
     /*========================================================================= */
     /* resolve o problema mestre reduzido                                       */
     /*========================================================================= */
@@ -134,9 +134,11 @@ int main(int argc, char * argv[]){
     tempoLP+=t2-t1;
 
     if (xpress_ret) 
-      errormsg("Main: Erro na chamada da rotina XPRSmaxim.\n",__LINE__,xpress_ret, probMestre);
+      errormsg("Main: Erro na chamada da rotina XPRSmaxim.\n",
+	       __LINE__,xpress_ret, probMestre);
 
-    if (IsIntegerSol(probMestre, &z_PMR, dual)){ /* obtem valor das var duais e valor da solucao */
+    /* obtem valor das var duais e valor da solucao */
+    if (IsIntegerSol(probMestre, &z_PMR, dual)){ 
       /* se solucao eh inteira --> atualiza bound primal, se melhor */
       totalInteiros++;
       if (z_PMR < melhorPrimal){
@@ -154,7 +156,8 @@ int main(int argc, char * argv[]){
     /*========================================================================= */
     printf("\n==========================\nOtimizacao do Pricing \n");
 	    
-    /* calcula os novos coeficientes das variaveis na funcao objetivo do subproblema de pricing */
+    /* calcula os novos coeficientes das variaveis na 
+       funcao objetivo do subproblema de pricing */
     for(i=0;i<cutting.m;i++){
       obj_pricing[i]=dual[i];
       mindex[i]=i;
@@ -162,16 +165,20 @@ int main(int argc, char * argv[]){
     }
 	    
     /* resolve o sub de pricing */
-    /* uma vez maximizado, perde a base inicial, e o problema tem que ser carregado de novo? */
+    /* uma vez maximizado, perde a base inicial, 
+       e o problema tem que ser carregado de novo? */
     XPRSinitglobal(probPricing); /* reinicializa o prob de pricing */
 
-    XPRSchgobj(probPricing,cutting.m,mindex,obj_pricing); /* seta novos coeficientes na funcao objetivo */
+    /* seta novos coeficientes na funcao objetivo */
+    XPRSchgobj(probPricing,cutting.m,mindex,obj_pricing); 
+
     /* reinicializa a melhor solucao */
     sol.zstar=XPRS_MINUSINFINITY; 
     xpress_ret=XPRSsetdblcontrol(probPricing,XPRS_MIPABSCUTOFF,sol.zstar);
 	    
     t1=clock();
-    xpress_ret=XPRSmaxim(probPricing,"g"); /* g = algoritmo de busca B&B, NULL = PL */
+    xpress_ret=XPRSmaxim(probPricing,"g"); /* g = algoritmo de busca B&B
+					      NULL = PL */
     t2=clock();
 	      
     tempo=((double)(t2-t1))/CLOCKS_PER_SEC;
@@ -182,8 +189,10 @@ int main(int argc, char * argv[]){
     printf("\nZstar (custo reduzido): %lf", 1-sol.zstar);
     printf("\nTempo do pricing: %lf\n", tempo);
     fflush(stdout);
-    getchar();	    
-    if (1-sol.zstar<-EPSILON){ // custo reduzido negativo
+    getchar();  
+
+    // custo reduzido negativo
+    if (1-sol.zstar<-EPSILON){
       /*=========================================================== */
       /* adiciona as colunas do pool                                */
       /*=========================================================== */
@@ -192,7 +201,8 @@ int main(int argc, char * argv[]){
       totalColunas+=sol.totPool;
     }
     else
-      break; /* nenhuma coluna com custo reduzido negativo => solucao otima do problema mestre relaxado foi encontrada */
+      break; /* nenhuma coluna com custo reduzido negativo =>
+		solucao otima do problema mestre relaxado foi encontrada */
 
     /* libera mem do pool */
     for(i=0;i<sol.totPool;i++){
@@ -200,7 +210,8 @@ int main(int argc, char * argv[]){
 	free(sol.pool[i]);
     }
     it++;
-  }while(1); // repete ate convergir
+  } while(1); // repete ate convergir
+
   tPMR=(tempoLP+tempoPricing)/CLOCKS_PER_SEC;
 
   /*========================================================================= */

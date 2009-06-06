@@ -21,7 +21,8 @@ ColumnGeneration::ColumnGeneration() {
   /* ========================================= */
   xpress_ret=XPRSinit("");
   if (xpress_ret)
-    errormsg("Main: Erro de inicializacao do XPRESS.\n", __LINE__, xpress_ret, probMestre);
+    errormsg("Main: Erro de inicializacao do XPRESS.\n",
+	     __LINE__, xpress_ret, probMestre);
 
   /* inicializa valores de variaveis globais */
   tPMR = 0;
@@ -51,7 +52,8 @@ void ColumnGeneration::solveRestricted() {
   tempoLP+=t2-t1;
 
   if (xpress_ret)
-    errormsg("Main: Erro na chamada da rotina XPRSminim.\n",__LINE__,xpress_ret, probMestre);
+    errormsg("Main: Erro na chamada da rotina XPRSminim.\n", 
+	     __LINE__, xpress_ret, probMestre);
 
   /* se solucao eh inteira --> atualiza bound primal, se melhor */
   if (isIntegerSol(probMestre)){
@@ -68,33 +70,52 @@ void ColumnGeneration::solveRestricted() {
 
 }
 
-void ColumnGeneration::solvePricing(Instance& instance, int pindex) {
+double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
+  return NULL;
+}
+
+void ColumnGeneration::solvePricing() {
   /*========================================================================= */
   /* resolve o problema de pricing                                            */
   /*========================================================================= */
   printf("\n==========================\nOtimizacao do Pricing \n");
 
-  /* calcula os novos coeficientes das variaveis na funcao objetivo do subproblema de pricing */
-  double* obj_pricing = instance.getNewObj(dual, mindex);
+  // podem ser vários subproblemas de pricing
+  int ncols, *mindex;
 
-  /* resolve o sub de pricing */
-  /* uma vez maximizado, perde a base inicial, e o problema tem que ser carregado de novo? */
-  /* reinicializa o prob de pricing */
-  XPRSinitglobal(probPricing[pindex]);
+  // tem pelos menos um problema de pricing
+  XPRSgetintattrib(probPricing[0], XPRS_COLS, &ncols);
+  mindex = (int *) calloc(ncols, sizeof(int));
 
-  /* seta novos coeficientes na funcao objetivo */
-  XPRSchgobj(probPricing[pindex], instance.dim(), mindex, obj_pricing);
+  for (int k = 0; k < (int)probPricing.size(); k++) {
 
-  /* reinicializa a melhor solucao */
-  sol.zstar = XPRS_MINUSINFINITY;
-  xpress_ret = XPRSsetdblcontrol(probPricing[pindex],XPRS_MIPABSCUTOFF,sol.zstar);
+    /* calcula os novos coeficientes das variaveis 
+       na funcao objetivo do subproblema de pricing */
+    double* obj_pricing = getNewObj(k, mindex);
 
-  t1=clock();
-  xpress_ret = XPRSmaxim(probPricing[pindex], "g"); /* g = algoritmo de busca B&B, NULL = PL */
-  t2=clock();
+    /* resolve o sub de pricing */
+    /* uma vez maximizado, perde a base inicial, e o problema tem que 
+       ser carregado de novo? */
+    /* reinicializa o prob de pricing */
+    XPRSinitglobal(probPricing[k]);
 
-  tempo=((double)(t2-t1))/CLOCKS_PER_SEC;
-  tempoPricing+=t2-t1;
+    /* seta novos coeficientes na funcao objetivo */
+    XPRSchgobj(probPricing[k], ncols, mindex, obj_pricing);
+
+    /* reinicializa a melhor solucao */
+    sol.zstar = XPRS_MINUSINFINITY;
+    xpress_ret = XPRSsetdblcontrol(probPricing[k],XPRS_MIPABSCUTOFF,sol.zstar);
+
+    t1=clock();
+    xpress_ret = XPRSmaxim(probPricing[k], "g"); /* g = algoritmo de busca B&B
+						    NULL = PL */
+    t2=clock();
+
+    tempo=((double)(t2-t1))/CLOCKS_PER_SEC;
+    tempoPricing+=t2-t1;
+    
+  }
+  free(mindex);
 
   /* imprime resultado do pricing */
   printf("\n==========================\nResultado do Pricing");
@@ -111,14 +132,16 @@ void ColumnGeneration::configureModel(int formato,
   /* "cria" o problema  mestre reduzido */
   xpress_ret = XPRScreateprob(&probMestre);
   if (xpress_ret)
-    errormsg("Main: Erro na initializacao do problema",__LINE__,xpress_ret, probMestre);
+    errormsg("Main: Erro na initializacao do problema",
+	     __LINE__,xpress_ret, probMestre);
 
   /* "cria" o problema Pricing */
   probPricing.resize(pricing.size());
   for (int i = 0; i < (int)pricing.size(); i++) {
     xpress_ret = XPRScreateprob(&probPricing[i]);
     if (xpress_ret)
-      errormsg("Main: Erro na initializacao do problema",__LINE__,xpress_ret, probPricing[i]);
+      errormsg("Main: Erro na initializacao do problema",
+	       __LINE__,xpress_ret, probPricing[i]);
   }
 
   /* ==================================================================================== */

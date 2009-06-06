@@ -34,7 +34,7 @@ class ColumnGeneration {
   XPRSprob probMestre;
   std::vector<XPRSprob> probPricing;
   int tPMR;
-
+  
   // so pra compilar, depois vejo
   int xpress_ret;
   double tempo, tempoLP, tempoPricing;
@@ -43,16 +43,16 @@ class ColumnGeneration {
   int totalInteiros;
   int itmelhorPrimal;
   int it;
-  int* mindex;
 
 protected:
   inline bool isIntegerSol(XPRSprob prob);
+  double *getNewObj(int pindex, int *mindex);
 
 public:
   ColumnGeneration();
   int loadModel(IntegerProgram&, XPRSprob, std::string);
   void solveRestricted();
-  void solvePricing(Instance& instance, int pindex = 0);
+  void solvePricing();
   void configureModel(int, IntegerProgram& ip, std::vector<IntegerProgram>& pricing);
   //void detSolvePricing();
 };
