@@ -1,28 +1,23 @@
 #include "milsp_instance.H"
+#include "uls_instance.H"
 #include "integer_program.H"
 #include "column_generation.H"
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+
 #define EPS 1e-9
-#define sz(a) (int) (a).size()
+
 #define pb push_back
+#define sz(a) (int) (a).size()
 #define NONZERO(a) ((a) > EPS || (a) < -EPS)
 
 class MILSP : public IntegerProgram {
-  std::vector<std::vector<double> > columns; //colunas transpostas;
+  std::vector<std::vector<double> > columns; //colunas transpostas
   std::vector<double> cost; //tamanho dinâmico
   int ncols, nrows;
   MILSPInstance instance;
 public:
-
-  int getncols() {
-    return ncols;
-  }
-
-  int getnrows() {
-    return nrows;
-  }
 
   void getParam(int& ncol,int& nrow,char** rowtype,double** rhs,
 		double** obj,int** colbeg, int** rowidx,
@@ -93,18 +88,13 @@ public:
 
   }
 
-  /* TODO: Gerar planos de produção que sempre dão uma solução viável.
-           + Produzir sempre a capacidade maxima para todo item
-	     em todo período
-	   + Com esses planos é sempre possível obter uma solução
-	     da Relaxação do Meste Restrito
-   */
-
+  /* Dada uma instância, gera o problema restrito
+     inicial */
   MILSP(MILSPInstance& instance) {
     this->instance = instance;
 
     nrows = 2*instance.t + instance.m;
-    ncols = instance.m*instance.t;
+    ncols = instance.m * instance.t;
 
     vvi x(ncols);
     vvi y(ncols);
@@ -128,14 +118,12 @@ public:
 	    x[sch].pb(toprod);
 	    y[sch].pb(1);
 	    s[sch].pb(0);
-	  }
-	  else if (inst == tp) { //produz toda a demanda
+	  } else if (inst == tp) { //produz toda a demanda
 	    x[sch].pb(dem);
 	    y[sch].pb(1);
 	    dem -= instance.d[prod][inst];
 	    s[sch].pb(dem);
-	  }
-	  else {
+	  } else {
 	    x[sch].pb(0);
 	    y[sch].pb(0);
 	    dem -= instance.d[prod][inst];
@@ -158,13 +146,15 @@ public:
     for(int prod=0,col=0;prod<instance.m;prod++) {
       for(int tp=0;tp<instance.t;tp++,col++) {
 	int row = 0;
-	// columns[col] = std::vector<double>(2*instance.t + instance.m);
+
 	for(int inst=0;inst<instance.t;inst++,row++) {
 	  columns[col][row] = y[col][inst];
 	}
+
 	for(int inst=0;inst<instance.t;inst++,row++) {
 	  columns[col][row] = x[col][inst];
 	}
+
 	for(int k=0;k<instance.m;k++,row++) {
 	  columns[col][row] = ((k == prod)?1:0);
 	}
@@ -175,14 +165,13 @@ public:
 	    instance.f[prod][inst]*y[col][inst] +
 	    instance.h[prod][inst]*s[col][inst];
 	}
-
 	inf += cost[col];
 
       } // end for tp
     } // end for prod
 
-    /* Cola uma matriz identidade para garantir factibilidade do
-       problema restrito */
+    /* "Cola" uma matriz identidade para garantir factibilidade
+       do problema restrito */
     int mid = 2*instance.t + instance.m;
     for (int i = 0; i < mid; i++) {
       columns.push_back(std::vector<double>(mid, 0.0));
@@ -192,55 +181,149 @@ public:
 
   } // end MILSP
 
-  void OldMILSP(MILSPInstance& instance) {
-    this->instance = instance;
-
-    ncols = instance.m;
-    vvi x(ncols);
-
-    for(int sch=0;sch<instance.m;sch++) {
-      for(int inst=0;inst<instance.t;inst++) {
-	x[sch].pb(instance.d[sch][inst]);
-      }
-    }
-
-    /* gera as primeiras colunas */
-    columns = std::vector<std::vector<double> >(ncols);
-    for(int col=0;col<ncols;col++) {
-      /* Em todos os instantes gera todos os esquemas */
-      for(int inst=0;inst<instance.t;inst++) {
-	columns[col].pb(1);
-      }
-      /* Produz a demanda atual, sempre (JIT) */
-      for(int inst=0;inst<instance.t;inst++) {
-	columns[col].pb(x[col][inst]);
-      }
-
-      /* Se o esquema é do produto ou não (Identidade) */
-      for(int sch=0;sch<ncols;sch++) {
-	int val = ((col == sch)?1:0);
-	columns[col].pb(val);
-      }
-
-      /* custo do esquema */
-      cost.pb(0);
-      for(int inst=0;inst<instance.t;inst++) {
-	cost[col] += instance.p[col][inst]*x[col][inst] + instance.f[col][inst];
-      }
-
-    } // fim for col
-  }
-
 };
 
+class ULS : public IntegerProgram {
+  std::vector<std::vector<double> > columns;
+  std::vector<double> cost;
+  int ncols, nrows;
+  ULSInstance instance;
+public:
+
+  ULS(const ULSInstance& instance) {
+    int M;
+
+    this->instance = instance;
+
+    nrows = 2 * instance.t;
+    ncols = instance.t;
+
+    M = 0;
+    for (int i = 0; i < instance.t; i++)
+      M += instance.d[i];
+    M *= 2;
+    
+    columns = std::vector<std::vector<double> >
+      (ncols, std::vector<double>(nrows, 0.0));
+    
+    for (int i = 0; i < ncols; i++) {
+      if (i < instance.t) {
+	columns[i][i] = 1;
+	columns[i][instance.t + i] = 1;
+      } else if (instance.t <= i && i < 2*instance.t) {
+	columns[i][i] = -1;
+	if (i < 2*instance.t - 1)
+	  columns[i+1][i] = 1;
+      } else if (i >= 2*instance.t)
+	columns[i][i - instance.t] = -M;
+    }
+
+  }
+
+  void getParam(int& ncol, int& nrow, char** rowtype,double** rhs,
+		double** obj, int** colbeg, int** rowidx,
+		double** matval, double** lb, double** ub,
+		int& nmip, char** miptype, int** mipcol, bool& relaxed) {
+
+    relaxed = false;
+
+    /* Aloca memória dinamicamente para o XPress */
+    nrow = nrows;
+    ncol = ncols;
+
+    *rowtype = (char *) calloc(nrow, sizeof(char));
+    *rhs = (double *) calloc(nrow, sizeof(double));
+    *obj = (double *) calloc(ncol, sizeof(double));
+    *colbeg = (int *) calloc(ncol+1, sizeof(int));
+    *lb = (double *) calloc(ncol, sizeof(double));
+    *ub = (double *) calloc(ncol, sizeof(double));
+
+    // configura tipo de restrição
+    for (int i = 0; i < instance.t; i++)
+      *rowtype[i] = 'E';
+    for (int i = instance.t; i < nrows; i++)
+      *rowtype[i] = 'L';
+
+    // configura limites das variáveis
+    for (int i = 0; i < 2*instance.t; i++) {
+      *lb[i] = 0.0;
+      *ub[i] = XPRS_PLUSINFINITY;
+    }
+    for (int i = 2*instance.t; i < ncols; i++) {
+      *lb[i] = 0;
+      *ub[i] = 1;
+    }
+    
+    // aloca matriz esparsa
+    int matsize = 0;
+    for (int i = 0; i < ncols; i++)
+      for (int j = 0; j < nrows; j++) matsize += NONZERO(columns[i][j]) ? 1 : 0;
+
+    *matval = (double *) calloc(matsize, sizeof(double));
+    *rowidx = (int *) calloc(matsize, sizeof(int));
+
+    // configura colunas
+    int off = 0;
+    for (int i = 0; i < ncols; i++) {
+      *colbeg[i] = off;
+      for (int j = 0; j < nrows; j++)
+	if (NONZERO(columns[i][j])) {
+	  *matval[off] = columns[i][j];
+	  *rowidx[off++] = j;
+	}
+    }
+
+    // configura variaveis binárias
+    nmip = instance.t;
+    *miptype = (char *) calloc(nmip, sizeof(char));
+    *mipcol = (int *) calloc(nmip, sizeof(int));
+    for (int i = 0; i < nmip; i++) {
+      *miptype[i] = 'B';
+      *mipcol[i] = 2*instance.t + 1;
+    }
+
+    // configura rhs
+    for (int i = 0; i < instance.t; i++)
+      *rhs[i] = instance.d[i];
+    for (int i = instance.t; i < nrows; i++)
+      *rhs[i] = 0.0;
+
+    // configura funcao objetivo
+    for (int i = 0; i < instance.t; i++)
+      *obj[i] = instance.p[i];
+    for (int i = instance.t; i < 2*instance.t; i++)
+      *obj[i] = instance.h[i-instance.t];
+    for (int i = 2*instance.t; i < ncols; i++)
+      *obj[i] = instance.f[i-2*instance.t];
+  }
+};
 
 int main(int argc, char* argv[]) {
   FILE* fp = fopen(argv[1], "r");
   MILSPInstance mi;
+
   mi.loadFrom(fp);
+
   MILSP prob(mi);
   ColumnGeneration cg;
-  cg.configureModel(0,prob,prob);
+
+  std::vector<IntegerProgram> pricing;
+
+  // gera subproblemas de pricing para MILSP (um ULS para cada produto)
+  char prefixo[16];
+  for (int i = 0; i < mi.m; i++) {
+    sprintf(prefixo, "prod%d", i);
+    std::string nome(prefixo);
+    pricing.push_back(ULS(ULSInstance(nome,
+				      mi.t,
+				      mi.d[i],
+				      mi.f[i],
+				      mi.h[i],
+				      mi.p[i])));
+  }
+
+  cg.configureModel(0, prob, pricing);
   cg.solveRestricted();
-  return(0);
+
+  return 0;
 }

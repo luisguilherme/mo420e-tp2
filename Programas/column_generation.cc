@@ -4,17 +4,31 @@
    lê todos os dados da entrada bla bla bla
    escolhe as colunas
    while (1) {
-   resolve o problema restrito (limitante primal do mestre relaxado)
-   verifica se é inteira (limitante primal do mestre)
-   resolve o problema de pricing (verifica se restrito é dual-viável)
-   verifica se a solução do restrito é ótima (pricing)
-     se não, gera colunas; continue
-   verifica se é inteira (ótima para o PI)
-     se sim, break;
-     se não, ???;
+     resolve o problema restrito (limitante primal do mestre relaxado)
+     verifica se é inteira (limitante primal do mestre)
+     resolve o problema de pricing (verifica se restrito é dual-viável)
+     verifica se a solução do restrito é ótima (pricing)
+       se não, gera colunas; continue
+     verifica se é inteira (ótima para o PI)
+       se sim, break;
+       se não, ???;
    }
 */
 
+ColumnGeneration::ColumnGeneration() {
+  /* ========================================= */
+  /* inicializacão do XPRESS                   */
+  /* ========================================= */
+  xpress_ret=XPRSinit("");
+  if (xpress_ret)
+    errormsg("Main: Erro de inicializacao do XPRESS.\n", __LINE__, xpress_ret, probMestre);
+
+  /* inicializa valores de variaveis globais */
+  tPMR = 0;
+  it = 0;
+
+  printf("\n==========================\nOtimizacao do LP e IP");
+}
 
 void ColumnGeneration::solveRestricted() {
   /*========================================================================= */
@@ -25,7 +39,8 @@ void ColumnGeneration::solveRestricted() {
   /* inicializa o pool de colunas */
   sol.totPool=0;
 
-  XPRSinitglobal(probMestre); /* reinicializa o prob mestre reduzido*/
+  /* reinicializa o prob mestre reduzido*/
+  XPRSinitglobal(probMestre);
 
   /* resolve o PMR com o optimizer */
   t1=clock();
@@ -38,40 +53,44 @@ void ColumnGeneration::solveRestricted() {
   if (xpress_ret)
     errormsg("Main: Erro na chamada da rotina XPRSminim.\n",__LINE__,xpress_ret, probMestre);
 
-  if (isIntegerSol(probMestre)){ /* obtem valor das var duais e valor da solucao */
-    /* se solucao eh inteira --> atualiza bound primal, se melhor */
+  /* se solucao eh inteira --> atualiza bound primal, se melhor */
+  if (isIntegerSol(probMestre)){
     totalInteiros++;
     if (z_PMR < melhorPrimal){
       melhorPrimal = z_PMR;
       itmelhorPrimal = it;
     }
   }
+
   printf("\nIteracao: %d\n", it );
   printf("- Valor da solucao otima do PMR =%12.6f \n",z_PMR);
   printf("- Tempo do LP = %lf\n", tempo);
 
 }
 
-void ColumnGeneration::solvePricing(Instance& instance) {
+void ColumnGeneration::solvePricing(Instance& instance, int pindex) {
   /*========================================================================= */
   /* resolve o problema de pricing                                            */
   /*========================================================================= */
   printf("\n==========================\nOtimizacao do Pricing \n");
 
   /* calcula os novos coeficientes das variaveis na funcao objetivo do subproblema de pricing */
-  double* obj_pricing = instance.getNewObj(dual,mindex);
+  double* obj_pricing = instance.getNewObj(dual, mindex);
 
   /* resolve o sub de pricing */
   /* uma vez maximizado, perde a base inicial, e o problema tem que ser carregado de novo? */
-  XPRSinitglobal(probPricing); /* reinicializa o prob de pricing */
+  /* reinicializa o prob de pricing */
+  XPRSinitglobal(probPricing[pindex]);
 
-  XPRSchgobj(probPricing,instance.dim(),mindex,obj_pricing); /* seta novos coeficientes na funcao objetivo */
+  /* seta novos coeficientes na funcao objetivo */
+  XPRSchgobj(probPricing[pindex], instance.dim(), mindex, obj_pricing);
+
   /* reinicializa a melhor solucao */
-  sol.zstar=XPRS_MINUSINFINITY;
-  xpress_ret=XPRSsetdblcontrol(probPricing,XPRS_MIPABSCUTOFF,sol.zstar);
+  sol.zstar = XPRS_MINUSINFINITY;
+  xpress_ret = XPRSsetdblcontrol(probPricing[pindex],XPRS_MIPABSCUTOFF,sol.zstar);
 
   t1=clock();
-  xpress_ret=XPRSmaxim(probPricing,"g"); /* g = algoritmo de busca B&B, NULL = PL */
+  xpress_ret = XPRSmaxim(probPricing[pindex], "g"); /* g = algoritmo de busca B&B, NULL = PL */
   t2=clock();
 
   tempo=((double)(t2-t1))/CLOCKS_PER_SEC;
@@ -83,33 +102,24 @@ void ColumnGeneration::solvePricing(Instance& instance) {
   printf("\nTempo do pricing: %lf\n", tempo);
 }
 
-ColumnGeneration::ColumnGeneration() {
-  /* ========================================= */
-  /* inicializacão do XPRESS                   */
-  /* ========================================= */
-  xpress_ret=XPRSinit("");
-  if (xpress_ret)
-    errormsg("Main: Erro de inicializacao do XPRESS.\n", __LINE__, xpress_ret, probMestre);
-
-  /* inicializa valores de variaveis globais */
-  tPMR=0;
-
-  printf("\n==========================\nOtimizacao do LP e IP");
-}
-
 /* Cria, Carrega e configura cada modelo */
-void ColumnGeneration::configureModel(int formato, IntegerProgram& ip, IntegerProgram& pricing) {
+void ColumnGeneration::configureModel(int formato,
+				      IntegerProgram& ip,
+				      std::vector<IntegerProgram>& pricing) {
   int xpress_ret;
 
   /* "cria" o problema  mestre reduzido */
-  xpress_ret=XPRScreateprob(&probMestre);
+  xpress_ret = XPRScreateprob(&probMestre);
   if (xpress_ret)
-    errormsg("Main: Erro na initializacao do problema",__LINE__,xpress_ret, probPricing);
+    errormsg("Main: Erro na initializacao do problema",__LINE__,xpress_ret, probMestre);
 
   /* "cria" o problema Pricing */
-  xpress_ret=XPRScreateprob(&probPricing);
-  if (xpress_ret)
-    errormsg("Main: Erro na initializacao do problema",__LINE__,xpress_ret, probPricing);
+  probPricing.resize(pricing.size());
+  for (int i = 0; i < (int)pricing.size(); i++) {
+    xpress_ret = XPRScreateprob(&probPricing[i]);
+    if (xpress_ret)
+      errormsg("Main: Erro na initializacao do problema",__LINE__,xpress_ret, probPricing[i]);
+  }
 
   /* ==================================================================================== */
   /* Carga e configuracao dos parametros de controle do XPRESS para o subprob de pricing  */
@@ -164,24 +174,24 @@ void ColumnGeneration::configureModel(int formato, IntegerProgram& ip, IntegerPr
   XPRSsetintcontrol(probMestre,XPRS_EXTRACOLS,50);
 
   /* limita o tempo de execucao */
-  xpress_ret=XPRSsetintcontrol(probMestre,XPRS_MAXTIME,MAX_CPU_TIME);
+  xpress_ret = XPRSsetintcontrol(probMestre,XPRS_MAXTIME,MAX_CPU_TIME);
   if (xpress_ret)
     errormsg("Main: Erro ao tentar setar o XPRS_MAXTIME.\n",__LINE__,xpress_ret, probMestre);
 
   /* carga do problema mestre */
-  xpress_ret=loadModel(ip, probMestre, "Mestre");
+  xpress_ret = loadModel(ip, probMestre, "Mestre");
   if (xpress_ret) errormsg("Main: Erro na carga do modelo.",__LINE__,xpress_ret, probMestre);
 
   /* aloca variaveis duais */
   dual = (double *)calloc(ip.getnrows(), sizeof(double));
 
   /* Desabilita o PRESOLVE */
-  xpress_ret=XPRSsetintcontrol(probMestre,XPRS_PRESOLVE,0);
+  xpress_ret = XPRSsetintcontrol(probMestre,XPRS_PRESOLVE,0);
   if (xpress_ret)
     errormsg("Main: Erro ao desabilitar o presolve.",__LINE__,xpress_ret, probMestre);
 
   /* salva um arquivo ".lp" com o LP original */
-  xpress_ret=XPRSwriteprob(probMestre,"Mestre","l");
+  xpress_ret = XPRSwriteprob(probMestre,"Mestre","l");
   if (xpress_ret)
     errormsg("Main: Erro na chamada da rotina XPRSwriteprob.\n",__LINE__,xpress_ret, probMestre);
 }
@@ -262,16 +272,16 @@ inline bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
   XPRSgetintattrib(prob,XPRS_COLS,&colunas); /* recupera numero de colunas  */
 
   lambda = (double *)malloc(colunas*sizeof(double));
-  obj=(double *)malloc(colunas*sizeof(double));
+  obj = (double *)malloc(colunas*sizeof(double));
 
   /* recupera dados do problema */
   XPRSgetobj(prob,obj, 0, colunas-1); /* recupera coef das var na f.o.*/
 
   /* recupera a solucao do problema */
   XPRSgetintcontrol(prob,XPRS_SOLUTIONFILE,&solfile); /* guarda valor */
-  XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,0);		/* reseta */
-  XPRSgetsol(prob,lambda, NULL, dual, NULL);
-  XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,solfile);		/* volta config anterior */
+  XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,0);	      /* reseta */
+  XPRSgetsol(prob, lambda, NULL, dual, NULL);
+  XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,solfile);  /* volta config anterior */
 
   /* testar se solucao lambda eh inteira. Se for, ver se solucao eh melhor e guardar  */
   inteiro=1;
@@ -282,7 +292,9 @@ inline bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
     z_PMR +=obj[i]*lambda[i];
   }
 
-  free(lambda); free(obj);
+  free(lambda);
+  free(obj);
+
   return inteiro;
 }
 
@@ -298,7 +310,7 @@ inline bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
    CargaProblemaPricing e CargaProblemaMestre serão transformados em
    loadModel
 */
-int ColumnGeneration::loadModel(IntegerProgram& ip,XPRSprob prob,std::string name) {
+int ColumnGeneration::loadModel(IntegerProgram& ip, XPRSprob prob, std::string name) {
   int ncol, nrow,nmip;
   char* rowtype,* miptype;
   double* rhs,* obj,* lb,* ub,* matval;
@@ -317,6 +329,7 @@ int ColumnGeneration::loadModel(IntegerProgram& ip,XPRSprob prob,std::string nam
 				ub,nmip,0,miptype,mipcol,NULL,NULL,NULL,
 				NULL,NULL);
   }
+
   return(xpress_ret);
 }
 

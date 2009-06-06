@@ -11,6 +11,7 @@
 #include <ctime>
 #include <vector>
 #include <string>
+
 #include "instance.H"
 #include "integer_program.H"
 #include "xprs.h"
@@ -31,7 +32,7 @@ class ColumnGeneration {
   solution sol;
   clock_t t1, t2;
   XPRSprob probMestre;
-  XPRSprob probPricing;
+  std::vector<XPRSprob> probPricing;
   int tPMR;
 
   // so pra compilar, depois vejo
@@ -51,8 +52,8 @@ public:
   ColumnGeneration();
   int loadModel(IntegerProgram&, XPRSprob, std::string);
   void solveRestricted();
-  void solvePricing(Instance& instance);
-  void configureModel(int, IntegerProgram& ip, IntegerProgram& pricing);
+  void solvePricing(Instance& instance, int pindex = 0);
+  void configureModel(int, IntegerProgram& ip, std::vector<IntegerProgram>& pricing);
   //void detSolvePricing();
 };
 
