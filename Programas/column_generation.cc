@@ -15,7 +15,8 @@
    }
 */
 
-ColumnGeneration::ColumnGeneration() {
+ColumnGeneration::ColumnGeneration() :
+  ipPricing(std::vector<IntegerProgram>()) {
   /* ========================================= */
   /* inicializacão do XPRESS                   */
   /* ========================================= */
@@ -27,6 +28,7 @@ ColumnGeneration::ColumnGeneration() {
   /* inicializa valores de variaveis globais */
   tPMR = 0;
   it = 0;
+
 
   printf("\n==========================\nOtimizacao do LP e IP");
 }
@@ -67,11 +69,26 @@ void ColumnGeneration::solveRestricted() {
   printf("\nIteracao: %d\n", it );
   printf("- Valor da solucao otima do PMR =%12.6f \n",z_PMR);
   printf("- Tempo do LP = %lf\n", tempo);
-
 }
 
 double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
-  return NULL;
+  int colunas;
+  double *cost;
+
+  XPRSgetintattrib(probPricing[pindex], XPRS_COLS, &colunas);
+  cost = (double *)calloc(colunas, sizeof(double));
+
+  std::vector<std::vector<double> > & columns = ipPricing[pindex].getcolumns();
+  std::vector<double > & obj = ipPricing[pindex].getcost();
+
+  for (int i = 0; i < colunas; i++) {
+    double delta = 0.0;
+    for (int j = 0; j < ipPricing[pindex].getnrows(); j++)
+      delta += dual[j] * columns[i][j];
+    cost[i] = obj[i] + delta;
+  }
+
+  return cost;
 }
 
 void ColumnGeneration::solvePricing() {
@@ -128,6 +145,8 @@ void ColumnGeneration::configureModel(int formato,
 				      IntegerProgram& ip,
 				      std::vector<IntegerProgram>& pricing) {
   int xpress_ret;
+
+  ipPricing = pricing;
 
   /* "cria" o problema  mestre reduzido */
   xpress_ret = XPRScreateprob(&probMestre);

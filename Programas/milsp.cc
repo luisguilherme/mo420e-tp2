@@ -184,10 +184,10 @@ public:
 };
 
 class ULS : public IntegerProgram {
+  ULSInstance instance;
   std::vector<std::vector<double> > columns;
   std::vector<double> cost;
   int ncols, nrows;
-  ULSInstance instance;
 public:
 
   ULS(const ULSInstance& instance) {
