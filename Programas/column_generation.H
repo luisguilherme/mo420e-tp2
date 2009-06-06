@@ -19,9 +19,11 @@ typedef struct {
   /* para pool de colunas */
   std::vector<std::vector<double> > pool; /* pool de colunas geradas pelo pricing */
   int totPool;/* total de colunas inseridas no Pool de colunas */
+
   /* usados na otimizacao do problema mestre e do pricing */
   std::vector<double> xstar;/* armazena a melhor solucao inteira encontrada pelo  pricing */
   double zstar;  /* armazena o valor da solucao otima do pricing */
+
 } solution;
 
 class ColumnGeneration {
@@ -32,7 +34,7 @@ class ColumnGeneration {
   XPRSprob probPricing;
   int tPMR;
 
-  //so pra compilar, depois vejo
+  // so pra compilar, depois vejo
   int xpress_ret;
   double tempo, tempoLP, tempoPricing;
   double z_PMR;
@@ -53,6 +55,7 @@ public:
   void configureModel(int, IntegerProgram& ip, IntegerProgram& pricing);
   //void detSolvePricing();
 };
+
 void errormsg(const char*, int, int, XPRSprob);
 void XPRS_CC salvaMelhorSol(XPRSprob prob, void *psol);
 #endif
