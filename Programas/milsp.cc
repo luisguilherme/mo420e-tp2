@@ -185,7 +185,6 @@ public:
 
 };
 
-
 int main(int argc, char* argv[]) {
   FILE* fp = fopen(argv[1], "r");
   MILSPInstance mi;
@@ -195,23 +194,26 @@ int main(int argc, char* argv[]) {
   MILSP prob(mi);
   ColumnGeneration cg;
 
-  std::vector<IntegerProgram> pricing;
+  std::vector<IntegerProgram*> pricing;
 
   // gera subproblemas de pricing para MILSP (um ULS para cada produto)
   char prefixo[16];
   for (int i = 0; i < mi.m; i++) {
     sprintf(prefixo, "prod%d", i);
     std::string nome(prefixo);
-    pricing.push_back(ULS(ULSInstance(nome,
-				      mi.t,
-				      mi.d[i],
-				      mi.f[i],
-				      mi.h[i],
-				      mi.p[i])));
+    pricing.push_back(new ULS(ULSInstance(nome,
+					  mi.t,
+					  mi.d[i],
+					  mi.f[i],
+					  mi.h[i],
+					  mi.p[i])));
   }
 
-  cg.configureModel(0, prob, pricing);
-  cg.solveRestricted();
+  for (int i = 0; i < 10; i++) {
+    cg.configureModel(0, prob, pricing);
+    cg.solveRestricted();
+    cg.solvePricing();
+  }
 
   return 0;
 }
