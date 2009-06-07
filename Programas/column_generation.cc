@@ -15,8 +15,8 @@
    }
 */
 
-ColumnGeneration::ColumnGeneration() :
-  ipPricing(std::vector<IntegerProgram>()) {
+ColumnGeneration::ColumnGeneration() {
+
   /* ========================================= */
   /* inicializacão do XPRESS                   */
   /* ========================================= */
@@ -28,7 +28,6 @@ ColumnGeneration::ColumnGeneration() :
   /* inicializa valores de variaveis globais */
   tPMR = 0;
   it = 0;
-
 
   printf("\n==========================\nOtimizacao do LP e IP");
 }
@@ -91,7 +90,7 @@ double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
   return cost;
 }
 
-void ColumnGeneration::solvePricing() {
+bool ColumnGeneration::solvePricing() {
   /*========================================================================= */
   /* resolve o problema de pricing                                            */
   /*========================================================================= */
@@ -99,13 +98,13 @@ void ColumnGeneration::solvePricing() {
 
   // podem ser vários subproblemas de pricing
   int ncols, *mindex;
+  bool column_added = false;
 
   // tem pelos menos um problema de pricing
   XPRSgetintattrib(probPricing[0], XPRS_COLS, &ncols);
   mindex = (int *) calloc(ncols, sizeof(int));
 
   for (int k = 0; k < (int)probPricing.size(); k++) {
-
     /* calcula os novos coeficientes das variaveis 
        na funcao objetivo do subproblema de pricing */
     double* obj_pricing = getNewObj(k, mindex);
@@ -120,24 +119,32 @@ void ColumnGeneration::solvePricing() {
     XPRSchgobj(probPricing[k], ncols, mindex, obj_pricing);
 
     /* reinicializa a melhor solucao */
-    sol.zstar = XPRS_MINUSINFINITY;
-    xpress_ret = XPRSsetdblcontrol(probPricing[k],XPRS_MIPABSCUTOFF,sol.zstar);
+    sol.zstar = XPRS_PLUSINFINITY;
+    xpress_ret = XPRSsetdblcontrol(probPricing[k], XPRS_MIPABSCUTOFF, sol.zstar);
 
     t1=clock();
-    xpress_ret = XPRSmaxim(probPricing[k], "g"); /* g = algoritmo de busca B&B
+    xpress_ret = XPRSminim(probPricing[k], "g"); /* g = algoritmo de busca B&B
 						    NULL = PL */
     t2=clock();
 
+    if (sol.zstar - dual[ncols+k] > EPSILON) {
+      //
+      // ADICIONA COLUNA
+      //
+      column_added = true;
+    }
+
     tempo=((double)(t2-t1))/CLOCKS_PER_SEC;
     tempoPricing+=t2-t1;
-    
+
+    /* imprime resultado do pricing */
+    printf("\n==========================\nResultado do Pricing %d", k);
+    printf("\nZstar (custo reduzido): %lf", sol.zstar - dual[ncols+k]);
+    printf("\nTempo do pricing: %lf\n", tempo);
   }
   free(mindex);
 
-  /* imprime resultado do pricing */
-  printf("\n==========================\nResultado do Pricing");
-  printf("\nZstar (custo reduzido): %lf", 1-sol.zstar);
-  printf("\nTempo do pricing: %lf\n", tempo);
+  return column_added;
 }
 
 /* Cria, Carrega e configura cada modelo */
@@ -239,14 +246,13 @@ void ColumnGeneration::configureModel(int formato,
 }
 
 /* =====================================================================
- * Rotina (callback) para salvar a  melhor solucao.  Roda para todo nó
+ * Rotina (callback) para salvar a  melhor solucao. Roda para todo nó
  * onde acha solucao inteira.
  * callback para XPRSsetcbintsol
  * Autor: Cid Carvalho de Souza
  * =====================================================================
 */
-void XPRS_CC salvaMelhorSol(XPRSprob prob, void *psol)
-{
+void XPRS_CC salvaMelhorSol(XPRSprob prob, void *psol) {
   int i, cols, node, xpress_ret;
   double objval, *x;
   bool viavel;

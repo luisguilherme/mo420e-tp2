@@ -53,7 +53,7 @@ public:
   ColumnGeneration();
   int loadModel(IntegerProgram&, XPRSprob, std::string);
   void solveRestricted();
-  void solvePricing();
+  bool solvePricing();
   void configureModel(int, IntegerProgram& ip, std::vector<IntegerProgram>& pricing);
   //void detSolvePricing();
 };

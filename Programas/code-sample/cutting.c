@@ -199,8 +199,7 @@ int main(int argc, char * argv[]){
       adicionaCols(probMestre, sol.pool, sol.totPool, &cutting);
       ImprimeCols(sol.pool,sol.totPool, &cutting);
       totalColunas+=sol.totPool;
-    }
-    else
+    } else
       break; /* nenhuma coluna com custo reduzido negativo =>
 		solucao otima do problema mestre relaxado foi encontrada */
 

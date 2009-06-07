@@ -88,8 +88,7 @@ public:
 
   }
 
-  /* Dada uma instância, gera o problema restrito
-     inicial */
+  /* Dada uma instância, gera o problema restrito inicial */
   MILSP(MILSPInstance& instance) {
     this->instance = instance;
 
@@ -180,6 +179,12 @@ public:
     }
 
   } // end MILSP
+
+  void addcol(std::vector<double> &col, double c) {
+    columns.pb(col);
+    cost.pb(c);
+    ncols++;
+  }
 
 };
 

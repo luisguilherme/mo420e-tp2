@@ -1,6 +1,5 @@
 #include "milsp_instance.H"
 
-
 void MILSPInstance::loadFrom(FILE* fp) {
   char buffer[256];
   fscanf(fp," %[^\n]",buffer);
