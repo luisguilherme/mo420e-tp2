@@ -15,7 +15,8 @@
    }
 */
 
-ColumnGeneration::ColumnGeneration() {
+ColumnGeneration::ColumnGeneration(IntegerProgram &ip, std::vector<IntegerProgram*> &pricing)
+   : ipMestre(ip) {
 
   /* ========================================= */
   /* inicializacão do XPRESS                   */
@@ -53,7 +54,7 @@ void ColumnGeneration::solveRestricted() {
   tempoLP+=t2-t1;
 
   if (xpress_ret)
-    errormsg("Main: Erro na chamada da rotina XPRSminim.\n", 
+    errormsg("Main: Erro na chamada da rotina XPRSminim.\n",
 	     __LINE__, xpress_ret, probMestre);
 
   /* se solucao eh inteira --> atualiza bound primal, se melhor */
@@ -106,12 +107,12 @@ bool ColumnGeneration::solvePricing() {
   mindex = (int *) calloc(ncols, sizeof(int));
 
   for (int k = 0; k < (int)probPricing.size(); k++) {
-    /* calcula os novos coeficientes das variaveis 
+    /* calcula os novos coeficientes das variaveis
        na funcao objetivo do subproblema de pricing */
     double* obj_pricing = getNewObj(k, mindex);
 
     /* resolve o sub de pricing */
-    /* uma vez maximizado, perde a base inicial, e o problema tem que 
+    /* uma vez maximizado, perde a base inicial, e o problema tem que
        ser carregado de novo? */
     /* reinicializa o prob de pricing */
     XPRSinitglobal(probPricing[k]);
@@ -175,7 +176,7 @@ void ColumnGeneration::configureModel(int formato,
     if (xpress_ret)
       errormsg("Main: Erro na initializacao do problema",
 	       __LINE__,xpress_ret, probPricing[i]);
-    
+
     /* ==================================================================================== */
     /* Carga e configuracao dos parametros de controle do XPRESS para o subprob de pricing  */
     /* ==================================================================================== */
@@ -408,7 +409,8 @@ void XPRS_CC salvaMelhorSol(XPRSprob prob, void *psol) {
   viavel = true;
 
   /* se a solucao tiver custo melhor que a melhor solucao disponivel entao salva */
-  if ((objval > sol->zstar) && viavel ) {
+  if ((objval < sol->zstar) && viavel ) {
+    sol->xstar = std::vector<double>(cols, 0.0);
     for(i=0;i<cols;i++)
       sol->xstar[i]=x[i];
     sol->zstar=objval;
