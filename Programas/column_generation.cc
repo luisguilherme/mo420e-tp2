@@ -77,12 +77,12 @@ double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
   XPRSgetintattrib(probPricing[pindex], XPRS_COLS, &colunas);
   cost = (double *)calloc(colunas, sizeof(double));
 
-  std::vector<std::vector<double> > & columns = ipPricing[pindex].getcolumns();
-  std::vector<double > & obj = ipPricing[pindex].getcost();
+  std::vector<std::vector<double> > & columns = ipPricing[pindex]->getcolumns();
+  std::vector<double > & obj = ipPricing[pindex]->getcost();
 
   for (int i = 0; i < colunas; i++) {
     double delta = 0.0;
-    for (int j = 0; j < ipPricing[pindex].getnrows(); j++)
+    for (int j = 0; j < ipPricing[pindex]->getnrows(); j++)
       delta += dual[j] * columns[i][j];
     mindex[i] = i;
     cost[i] = obj[i] + delta;
@@ -134,7 +134,7 @@ bool ColumnGeneration::solvePricing() {
       //
       double c = 0.0;
       for (int i = 0; i < (int)sol.xstar.size(); i++)
-	c += sol.xstar[i] * ipPricing[k].getcost()[i];
+	c += sol.xstar[i] * ipPricing[k]->getcost()[i];
       ipMestre.addcol(sol.xstar, c);
       column_added = true;
     }
@@ -155,7 +155,7 @@ bool ColumnGeneration::solvePricing() {
 /* Cria, Carrega e configura cada modelo */
 void ColumnGeneration::configureModel(int formato,
 				      IntegerProgram& ip,
-				      std::vector<IntegerProgram>& pricing) {
+				      std::vector<IntegerProgram*>& pricing) {
   int xpress_ret;
 
   ipPricing = pricing;
@@ -169,56 +169,59 @@ void ColumnGeneration::configureModel(int formato,
   /* "cria" o problema Pricing */
   probPricing.resize(pricing.size());
   for (int i = 0; i < (int)pricing.size(); i++) {
+    char nome[16];
+    sprintf(nome, "pricing%d", i);
     xpress_ret = XPRScreateprob(&probPricing[i]);
     if (xpress_ret)
       errormsg("Main: Erro na initializacao do problema",
 	       __LINE__,xpress_ret, probPricing[i]);
+    
+    /* ==================================================================================== */
+    /* Carga e configuracao dos parametros de controle do XPRESS para o subprob de pricing  */
+    /* ==================================================================================== */
+
+    /* ALTERAR DEPOIS!!!  */
+    /* limita o tempo de execucao */
+    xpress_ret=XPRSsetintcontrol(probPricing[i], XPRS_MAXTIME,MAX_CPU_TIME);
+    if (xpress_ret)
+      errormsg("Main: Erro ao tentar setar o XPRS_MAXTIME.\n",__LINE__,xpress_ret, probPricing[i]);
+
+    /* carga do modelo de pricing */
+    xpress_ret=loadModel(*(pricing[i]), probPricing[i], nome);
+    if (xpress_ret) errormsg("Main: Erro na carga do modelo.",__LINE__,xpress_ret, probPricing[i]);
+
+    /* salva um arquivo ".lp" com o LP original */
+    xpress_ret=XPRSwriteprob(probPricing[i], nome, "l");
+    if (xpress_ret)
+      errormsg("Main: Erro na chamada da rotina XPRSwriteprob.\n",__LINE__,xpress_ret, probPricing[i]);
+
+    /* Desabilita o PRESOLVE */
+    xpress_ret=XPRSsetintcontrol(probPricing[i],XPRS_PRESOLVE,0);
+    if (xpress_ret)
+      errormsg("Main: Erro ao desabilitar o presolve.",__LINE__,xpress_ret, probPricing[i]);
+
+    /* impressão para conferência */
+    xpress_ret=XPRSsetintcontrol(probPricing[i],XPRS_MIPLOG,formato);
+    if (xpress_ret)
+      errormsg("Main: Erro ao setar MIPLOG.",__LINE__,xpress_ret, probPricing[i]);
+
+    /* Desabilita heuristica */
+    xpress_ret=XPRSsetintcontrol(probPricing[i],XPRS_HEURSTRATEGY,0);
+    if (xpress_ret)
+      errormsg("Main: Erro ao tentar setar o XPRS_CUTSTRATEGY.\n",__LINE__,xpress_ret, probPricing[i]);
+
+    /* Desabilita a separacao de cortes do XPRESS.  */
+    xpress_ret=XPRSsetintcontrol(probPricing[i],XPRS_CUTSTRATEGY,0);
+    if (xpress_ret)
+      errormsg("Main: Erro ao tentar setar o XPRS_CUTSTRATEGY.\n",__LINE__,xpress_ret, probPricing[i]);
+
+    /* callback para salvar a melhor solucao inteira encontrada */
+    xpress_ret=XPRSsetcbintsol(probPricing[i],salvaMelhorSol, &sol);
+    if (xpress_ret)
+      errormsg("Main: Erro na chamada da rotina XPRSsetcbintsol\
+  			.\n",__LINE__,xpress_ret, probPricing[i]);
+
   }
-
-  /* ==================================================================================== */
-  /* Carga e configuracao dos parametros de controle do XPRESS para o subprob de pricing  */
-  /* ==================================================================================== */
-
-  /* ALTERAR DEPOIS!!!  */
-  /* limita o tempo de execucao */
-  // xpress_ret=XPRSsetintcontrol(probPricing,XPRS_MAXTIME,MAX_CPU_TIME);
-  // if (xpress_ret)
-  //   errormsg("Main: Erro ao tentar setar o XPRS_MAXTIME.\n",__LINE__,xpress_ret, probPricing);
-
-  // /* carga do modelo de pricing */
-  // xpress_ret=loadModel(pricing,probPricing,"Pricing");
-  // if (xpress_ret) errormsg("Main: Erro na carga do modelo.",__LINE__,xpress_ret, probPricing);
-
-  // /* salva um arquivo ".lp" com o LP original */
-  // xpress_ret=XPRSwriteprob(probPricing,"Pricing","l");
-  // if (xpress_ret)
-  //   errormsg("Main: Erro na chamada da rotina XPRSwriteprob.\n",__LINE__,xpress_ret, probPricing);
-
-  // /* Desabilita o PRESOLVE */
-  // xpress_ret=XPRSsetintcontrol(probPricing,XPRS_PRESOLVE,0);
-  // if (xpress_ret)
-  //   errormsg("Main: Erro ao desabilitar o presolve.",__LINE__,xpress_ret, probPricing);
-
-  // /* impressão para conferência */
-  // xpress_ret=XPRSsetintcontrol(probPricing,XPRS_MIPLOG,formato);
-  // if (xpress_ret)
-  //   errormsg("Main: Erro ao setar MIPLOG.",__LINE__,xpress_ret, probPricing);
-
-  // /* Desabilita heuristica */
-  // xpress_ret=XPRSsetintcontrol(probPricing,XPRS_HEURSTRATEGY,0);
-  // if (xpress_ret)
-  //   errormsg("Main: Erro ao tentar setar o XPRS_CUTSTRATEGY.\n",__LINE__,xpress_ret, probPricing);
-
-  // /* Desabilita a separacao de cortes do XPRESS.  */
-  // xpress_ret=XPRSsetintcontrol(probPricing,XPRS_CUTSTRATEGY,0);
-  // if (xpress_ret)
-  //   errormsg("Main: Erro ao tentar setar o XPRS_CUTSTRATEGY.\n",__LINE__,xpress_ret, probPricing);
-
-  // /* callback para salvar a melhor solucao inteira encontrada */
-  // xpress_ret=XPRSsetcbintsol(probPricing,salvaMelhorSol, &sol);
-  // if (xpress_ret)
-  //   errormsg("Main: Erro na chamada da rotina XPRSsetcbintsol\
-  // 			.\n",__LINE__,xpress_ret, probPricing);
 
   /* ===================================================================================== */
   /* carga e Configuracao dos parametros de controle do XPRESS para o problema mestre red  */
@@ -248,69 +251,6 @@ void ColumnGeneration::configureModel(int formato,
   xpress_ret = XPRSwriteprob(probMestre,"Mestre","l");
   if (xpress_ret)
     errormsg("Main: Erro na chamada da rotina XPRSwriteprob.\n",__LINE__,xpress_ret, probMestre);
-}
-
-/* =====================================================================
- * Rotina (callback) para salvar a  melhor solucao. Roda para todo nó
- * onde acha solucao inteira.
- * callback para XPRSsetcbintsol
- * Autor: Cid Carvalho de Souza
- * =====================================================================
-*/
-void XPRS_CC salvaMelhorSol(XPRSprob prob, void *psol) {
-  int i, cols, node, xpress_ret;
-  double objval, *x;
-  bool viavel;
-  solution* sol;
-
-  sol=(solution*) psol;
-
-  /* pega o numero do nó corrente */
-  xpress_ret=XPRSgetintattrib(prob,XPRS_NODES,&node);
-  if (xpress_ret)
-    errormsg("salvaMelhorSol: rotina XPRSgetintattrib.\n",__LINE__,xpress_ret, prob);
-
-  /* recupera numero de colunas do prob */
-  xpress_ret=XPRSgetintattrib(prob,XPRS_COLS,&cols);
-  if (xpress_ret)
-    errormsg("salvaMelhorSol: rotina XPRSgetintattrib\n",__LINE__,xpress_ret, prob);
-
-  /* recupera solucao */
-  x=(double *)malloc(cols*sizeof(double));
-
-  xpress_ret=XPRSgetdblattrib(prob,XPRS_LPOBJVAL,&objval);
-  if (xpress_ret)
-    errormsg("salvaMelhorSol: rotina XPRSgetdblattrib\n",__LINE__,xpress_ret, prob);
-
-  xpress_ret=XPRSgetsol(prob,x,NULL,NULL,NULL);
-  if (xpress_ret)
-    errormsg("salvaMelhorSol: Erro na chamada da rotina XPRSgetsol\
-			\n",__LINE__,xpress_ret, prob);
-
-  /* guarda no pool de colunas se o custo reduzido da solucao inteira é negativo */
-  if (1-objval<0 && sol->totPool<MAX_POOL){
-    (sol->pool)[sol->totPool] = std::vector<double>(cols);
-    for(i=0;i<cols;i++)
-      (sol->pool)[sol->totPool][i]=x[i];
-    (sol->totPool)++;
-  }
-
-  /* testa se a solução é viável */
-  viavel = true;
-
-  /* se a solucao tiver custo melhor que a melhor solucao disponivel entao salva */
-  if ((objval > sol->zstar) && viavel ) {
-    for(i=0;i<cols;i++)
-      sol->xstar[i]=x[i];
-    sol->zstar=objval;
-
-    /* informa xpress sobre novo incumbent */
-    xpress_ret=XPRSsetdblcontrol(prob,XPRS_MIPABSCUTOFF,sol->zstar);//zstar+1.0-EPSILON);
-    if (xpress_ret)
-      errormsg("salvaMelhorSol: XPRSsetdblcontrol.\n",__LINE__,xpress_ret, prob);
-  }
-  free(x);
-  return;
 }
 
 /* ========================================= */
@@ -419,5 +359,65 @@ void errormsg(const char *sSubName,int nLineNo,int nErrCode, XPRSprob probMestre
    exit(nErrCode);
 }
 
+/* =====================================================================
+ * Rotina (callback) para salvar a  melhor solucao. Roda para todo nó
+ * onde acha solucao inteira.
+ * callback para XPRSsetcbintsol
+ * Autor: Cid Carvalho de Souza
+ * =====================================================================*/
+void XPRS_CC salvaMelhorSol(XPRSprob prob, void *psol) {
+  int i, cols, node, xpress_ret;
+  double objval, *x;
+  bool viavel;
+  solution* sol;
 
+  sol=(solution*) psol;
 
+  /* pega o numero do nó corrente */
+  xpress_ret=XPRSgetintattrib(prob,XPRS_NODES,&node);
+  if (xpress_ret)
+    errormsg("salvaMelhorSol: rotina XPRSgetintattrib.\n",__LINE__,xpress_ret, prob);
+
+  /* recupera numero de colunas do prob */
+  xpress_ret=XPRSgetintattrib(prob,XPRS_COLS,&cols);
+  if (xpress_ret)
+    errormsg("salvaMelhorSol: rotina XPRSgetintattrib\n",__LINE__,xpress_ret, prob);
+
+  /* recupera solucao */
+  x=(double *)malloc(cols*sizeof(double));
+
+  xpress_ret=XPRSgetdblattrib(prob,XPRS_LPOBJVAL,&objval);
+  if (xpress_ret)
+    errormsg("salvaMelhorSol: rotina XPRSgetdblattrib\n",__LINE__,xpress_ret, prob);
+
+  xpress_ret=XPRSgetsol(prob,x,NULL,NULL,NULL);
+  if (xpress_ret)
+    errormsg("salvaMelhorSol: Erro na chamada da rotina XPRSgetsol\
+			\n",__LINE__,xpress_ret, prob);
+
+  /* guarda no pool de colunas se o custo reduzido da solucao inteira é negativo */
+  if (1-objval<0 && sol->totPool<MAX_POOL){
+    (sol->pool)[sol->totPool] = std::vector<double>(cols);
+    for(i=0;i<cols;i++)
+      (sol->pool)[sol->totPool][i]=x[i];
+    (sol->totPool)++;
+  }
+
+  /* testa se a solução é viável */
+  viavel = true;
+
+  /* se a solucao tiver custo melhor que a melhor solucao disponivel entao salva */
+  if ((objval > sol->zstar) && viavel ) {
+    for(i=0;i<cols;i++)
+      sol->xstar[i]=x[i];
+    sol->zstar=objval;
+
+    /* informa xpress sobre novo incumbent */
+    xpress_ret=XPRSsetdblcontrol(prob,XPRS_MIPABSCUTOFF,sol->zstar);//zstar+1.0-EPSILON);
+    if (xpress_ret)
+      errormsg("salvaMelhorSol: XPRSsetdblcontrol.\n",__LINE__,xpress_ret, prob);
+  }
+  free(x);
+  return;
+
+}

@@ -11,9 +11,8 @@ class ULS : public IntegerProgram {
   ULSInstance instance;
   
 public:
-  virtual void getParam(int&,int&,char**,double**,double**,int**,int**,
+  void getParam(int&,int&,char**,double**,double**,int**,int**,
 			double**,double**,double**,int&,char**,int**,bool&);
-  virtual void addcol(std::vector<double>&, double);
   ULS(const ULSInstance& instance);
 };
 
