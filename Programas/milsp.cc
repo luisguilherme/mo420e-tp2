@@ -82,18 +82,17 @@ public:
 
   }
 
-  /* Dada uma instância, gera o problema restrito inicial */
+
   MILSP(MILSPInstance& instance) {
     this->instance = instance;
-
+ 
     nrows = 2*instance.t + instance.m;
-    ncols = instance.m // * instance.t
-      ;
-
+    ncols = instance.m * instance.t;
+ 
     vvi x(ncols);
     vvi y(ncols);
     vvi s(ncols);
-
+ 
     vi demanda;
     for(int prod=0;prod<instance.m;prod++) {
       demanda.pb(0);
@@ -101,71 +100,69 @@ public:
 	demanda[prod] += instance.d[prod][inst];
       }
     }
-
-    for(int prod=0,sch=0;prod<instance.m;prod++,sch++) {
-    
-    // for(int prod=0,sch=0;prod<instance.m;prod++) {
-    //   for(int tp=0;tp<instance.t;tp++,sch++) {
-        int dem = demanda[prod];
+ 
+    for(int prod=0,sch=0;prod<instance.m;prod++) {
+      for(int tp=0;tp<instance.t;tp++,sch++) {
+	int dem = demanda[prod];
 	for(int inst=0;inst<instance.t;inst++) {
-	  // if (inst < tp) {
+	  if (inst < tp) {
 	    int toprod = instance.d[prod][inst];
+	    dem -= toprod;
 	    x[sch].pb(toprod);
 	    y[sch].pb(1);
 	    s[sch].pb(0);
-	  // } else if (inst == tp) { //produz toda a demanda
-	  //   x[sch].pb(dem);
-	  //   y[sch].pb(1);
-	  //   dem -= instance.d[prod][inst];
-	  //   s[sch].pb(dem);
-	  // } else {
-	  //   x[sch].pb(0);
-	  //   y[sch].pb(0);
-	  //   dem -= instance.d[prod][inst];
-	  //   s[sch].pb(dem);
-	  // } // end else
+	  } else if (inst == tp) { //produz toda a demanda
+	    x[sch].pb(dem);
+	    y[sch].pb(1);
+	    dem -= instance.d[prod][inst];
+	    s[sch].pb(dem);
+	  } else {
+	    x[sch].pb(0);
+	    y[sch].pb(0);
+	    dem -= instance.d[prod][inst];
+	    s[sch].pb(dem);
+	  } // end else
 	} // end for inst
-      // } // end for tp
+      } // end for tp
     } // end for prod
-    
+ 
     columns = std::vector<std::vector<double> >(ncols);
     for(int col=0;col<ncols;col++) {
       columns[col] = std::vector<double>(2*instance.t + instance.m);
     }
-
+ 
     // custo "infinito" as colunas da identidade
     double inf = 0.0;
-
+ 
     cost = std::vector<double>(ncols);
     /* Gera as colunas baseado no x */
-    for(int prod=0,col=0;prod<instance.m;prod++,col++) {
-      // for(int tp=0;tp<instance.t;tp++,col++) {
+    for(int prod=0,col=0;prod<instance.m;prod++) {
+      for(int tp=0;tp<instance.t;tp++,col++) {
 	int row = 0;
-
+ 
 	for(int inst=0;inst<instance.t;inst++,row++) {
 	  columns[col][row] = y[col][inst];
 	}
-
+ 
 	for(int inst=0;inst<instance.t;inst++,row++) {
 	  columns[col][row] = x[col][inst];
 	}
-
+ 
 	for(int k=0;k<instance.m;k++,row++) {
 	  columns[col][row] = ((k == prod)?1:0);
 	}
-
+ 
 	cost[col] = 0;
 	for(int inst=0;inst<instance.t;inst++) {
 	  cost[col] += instance.p[prod][inst]*x[col][inst] +
 	    instance.f[prod][inst]*y[col][inst] +
 	    instance.h[prod][inst]*s[col][inst];
 	}
-	fprintf(stderr,"cost[%d] = %6.1lf\n",col,cost[col]);
-	inf += 2*cost[col];
-
-      // } // end for tp
+	inf += cost[col];
+ 
+      } // end for tp
     } // end for prod
-
+ 
     /* "Cola" uma matriz identidade para garantir factibilidade
        do problema restrito */
     int mid = 2*instance.t + instance.m;
@@ -174,7 +171,7 @@ public:
       columns[ncols++][i] = 1.0;
       cost.push_back(inf);
     }
-
+ 
   } // end MILSP
 
   void addcol(std::vector<double> &sol, int np, double c,int& nz,double** custo,
