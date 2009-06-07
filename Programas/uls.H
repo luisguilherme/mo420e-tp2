@@ -14,6 +14,7 @@ public:
   virtual void getParam(int&,int&,char**,double**,double**,int**,int**,
 			double**,double**,double**,int&,char**,int**,bool&);
   virtual void addcol(std::vector<double>&, double);
+  double solve(std::vector<double>& sol);
   ULS(const ULSInstance& instance);
 };
 
