@@ -18,16 +18,62 @@ RA044072 - Igor Ribeiro de Assis}
 
 Neste trabalho prático, estudamos o problema de geração de colunas,
 implementamos essa técnica no resolvedor XPress e usamo-la para resolver
-o problema de \emph{multi-item capacitated lot sizing}.
+o problema de \emph{multi-item capacitated lot sizing} (MILSP).
+
+\section{Descrição}
+Este trabalho consistiu nas seguintes atividades:
+
+\begin{enumerate}
+ \item Implementação de um algoritmo de geração de colunas para
+       resolução do MILSP. Para isso foram necessárias uma política de 
+       geração de colunas iniciais e uma regra para geração de colunas
+       posteriores.
+ \item Geração de limitantes duais a partir da resolução dos problemas
+       mestre restritos.
+ \item Formulação inteira do ULS, que foi utilizado como problema de
+       pricing.
+ \item Resolução determinística do ULS, utilizando o algoritmo de
+       programação dinâmica de Wagner e Within. 
+\end{enumerate}
 
 \section{Implementação}
+A política de geração de colunas iniciais foi...
 
+Geramos limitantes duais...
+
+A formulação inteira para o ULS foi da forma:
+minimize
+\begin{equation}
+ \sum_{t=1}^n p_tx_t + \sum_{t=1}^n h_ts_t + \sum_{t=1}^n f_ty_t
+\end{equation}
+s.a
+\begin{equation}
+ s_{t-1} + x_t = d_t + s_t \forall t \in \{1..n\}
+\end{equation}
+\begin{equation}
+ x_{t} \leq My_t \forall t \in \{1..n\}
+\end{equation}
+\begin{equation}
+ s_0 = 0, s_t, x_t \geq 0, y_t \in {0,1}
+\end{equation}
+
+O algoritmo de Wagner e Within foi implementado em $O(n^3)$, utilizando
+ideias presentes no algoritmo de Floyd-Warshall para grafos.  
+
+Preocupamo-nos em escrever um código que fosse reutilizável, isto é,
+dado um novo par ``problema mestre''-``problema restrito'', basta
+implementar duas classes em C++ segundo certa interface padrão, e
+poderemos utilizar nosso código sem outras alterações para fazer a
+geração de colunas via XPress.
+
+\section{Análise de resultados}
 
 \section{Nota final}
+
 
 \bibliographystyle{acm}
 \bibliography{relatorio}
 
 
 \end{document}
-\documentclass{article}
+
