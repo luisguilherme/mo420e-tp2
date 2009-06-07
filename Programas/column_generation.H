@@ -33,6 +33,7 @@ class ColumnGeneration {
   clock_t t1, t2;
   XPRSprob probMestre;
   std::vector<XPRSprob> probPricing;
+  IntegerProgram ipMestre;
   std::vector<IntegerProgram> ipPricing; // facilita atualizacao custos
   int tPMR;
   

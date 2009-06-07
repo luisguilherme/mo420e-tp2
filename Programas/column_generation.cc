@@ -84,6 +84,7 @@ double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
     double delta = 0.0;
     for (int j = 0; j < ipPricing[pindex].getnrows(); j++)
       delta += dual[j] * columns[i][j];
+    mindex[i] = i;
     cost[i] = obj[i] + delta;
   }
 
@@ -131,6 +132,10 @@ bool ColumnGeneration::solvePricing() {
       //
       // ADICIONA COLUNA
       //
+      double c = 0.0;
+      for (int i = 0; i < (int)sol.xstar.size(); i++)
+	c += sol.xstar[i] * ipPricing[k].getcost()[i];
+      ipMestre.addcol(sol.xstar, c);
       column_added = true;
     }
 
