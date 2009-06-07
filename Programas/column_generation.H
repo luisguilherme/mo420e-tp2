@@ -33,7 +33,7 @@ class ColumnGeneration {
   clock_t t1, t2;
   XPRSprob probMestre;
   std::vector<XPRSprob> probPricing;
-  IntegerProgram ipMestre;
+  IntegerProgram& ipMestre;
   std::vector<IntegerProgram*> ipPricing; // facilita atualizacao custos
   int tPMR;
   
@@ -51,7 +51,7 @@ protected:
   double *getNewObj(int pindex, int *mindex);
 
 public:
-  ColumnGeneration();
+  ColumnGeneration(IntegerProgram &, std::vector<IntegerProgram*>&);
   int loadModel(IntegerProgram&, XPRSprob, std::string);
   void solveRestricted();
   bool solvePricing();

@@ -10,9 +10,6 @@
 
 
 class MILSP : public IntegerProgram {
-  std::vector<std::vector<double> > columns; //colunas transpostas
-  std::vector<double> cost; //tamanho dinâmico
-  int ncols, nrows;
   MILSPInstance instance;
 public:
 
@@ -192,7 +189,6 @@ int main(int argc, char* argv[]) {
   mi.loadFrom(fp);
 
   MILSP prob(mi);
-  ColumnGeneration cg;
 
   std::vector<IntegerProgram*> pricing;
 
@@ -208,6 +204,8 @@ int main(int argc, char* argv[]) {
 					  mi.h[i],
 					  mi.p[i])));
   }
+
+  ColumnGeneration cg(prob, pricing);
 
   for (int i = 0; i < 10; i++) {
     cg.configureModel(0, prob, pricing);

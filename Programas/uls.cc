@@ -7,7 +7,7 @@ ULS::ULS(const ULSInstance& instance) {
   this->instance = instance;
 
   nrows = 2 * instance.t;
-  ncols = instance.t;
+  ncols = 3 * instance.t;
 
   M = 0;
   for (int i = 0; i < instance.t; i++)
@@ -16,6 +16,8 @@ ULS::ULS(const ULSInstance& instance) {
     
   columns = std::vector<std::vector<double> >
     (ncols, std::vector<double>(nrows, 0.0));
+
+  cost = std::vector<double>(ncols, 0.0);
     
   for (int i = 0; i < ncols; i++) {
     if (i < instance.t) {
@@ -29,6 +31,13 @@ ULS::ULS(const ULSInstance& instance) {
       columns[i][i - instance.t] = -M;
   }
 
+  // configura funcao objetivo
+  for (int i = 0; i < instance.t; i++)
+    cost[i] = instance.p[i];
+  for (int i = instance.t; i < 2*instance.t; i++)
+    cost[i] = instance.h[i-instance.t];
+  for (int i = 2*instance.t; i < ncols; i++)
+    cost[i] = instance.f[i-2*instance.t];
 }
 
 void ULS::getParam(int& ncol, int& nrow, char** rowtype,double** rhs,
@@ -101,12 +110,8 @@ void ULS::getParam(int& ncol, int& nrow, char** rowtype,double** rhs,
     (*rhs)[i] = 0.0;
 
   // configura funcao objetivo
-  for (int i = 0; i < instance.t; i++)
-    (*obj)[i] = instance.p[i];
-  for (int i = instance.t; i < 2*instance.t; i++)
-    (*obj)[i] = instance.h[i-instance.t];
-  for (int i = 2*instance.t; i < ncols; i++)
-    (*obj)[i] = instance.f[i-2*instance.t];
+  for (int i = 0; i < ncols; i++)
+    (*obj)[i] = cost[i];
 }
 
 double ULS::solve(std::vector <double>& sol) {
