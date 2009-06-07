@@ -65,10 +65,16 @@ void ColumnGeneration::solveRestricted() {
       itmelhorPrimal = it;
     }
   }
+  char mestre[128];
+  sprintf(mestre,"Mestre%03d",it);
+  xpress_ret = XPRSwriteprob(probMestre,mestre,"l");
+  if (xpress_ret)
+    errormsg("Main: Erro na chamada da rotina XPRSwriteprob.\n",__LINE__,xpress_ret, probMestre);
 
   printf("\nIteracao: %d\n", it );
   printf("- Valor da solucao otima do PMR =%12.6f \n",z_PMR);
   printf("- Tempo do LP = %lf\n", tempo);
+  it++;
 }
 
 double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
@@ -82,11 +88,16 @@ double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
   std::vector<double > & obj = ipPricing[pindex]->getcost();
 
   for (int i = 0; i < colunas; i++) {
-    double delta = 0.0;
-    for (int j = 0; j < ipPricing[pindex]->getnrows(); j++)
-      delta += dual[j] * columns[i][j];
+    cost[i] = obj[i];
+    for (int j = 0; j < ipPricing[pindex]->getnrows(); j++) {
+      cost[i] -= dual[j] * columns[i][j];
+      fprintf(stderr,"Dual[%d] = %.10lf\n",j,dual[j]);
+
+    }
     mindex[i] = i;
-    cost[i] = obj[i] - delta;
+    
+    fprintf(stderr,"Custo reduzido da coluna %d é %6.1lf\n",i,cost[i]);
+    fprintf(stderr,"Objetivo da variavel %d é %6.1lf\n",i,obj[i]);
   }
 
   return cost;
@@ -99,13 +110,14 @@ bool ColumnGeneration::solvePricing() {
   printf("\n==========================\nOtimizacao do Pricing \n");
 
   // podem ser vários subproblemas de pricing
-  int ncols, *mindex;
+  int nrows, ncols, *mindex;
   bool column_added = false;
 
   // tem pelos menos um problema de pricing
+  XPRSgetintattrib(probPricing[0], XPRS_ROWS, &nrows);
   XPRSgetintattrib(probPricing[0], XPRS_COLS, &ncols);
   mindex = (int *) calloc(ncols, sizeof(int));
-
+  
   for (int k = 0; k < (int)probPricing.size(); k++) {
     /* calcula os novos coeficientes das variaveis
        na funcao objetivo do subproblema de pricing */
@@ -124,12 +136,14 @@ bool ColumnGeneration::solvePricing() {
     sol.zstar = XPRS_PLUSINFINITY;
     xpress_ret = XPRSsetdblcontrol(probPricing[k], XPRS_MIPABSCUTOFF, sol.zstar);
 
+    std::vector<double> sollll;
+    ipPricing[k]->solve(sollll);    
     t1=clock();
     xpress_ret = XPRSminim(probPricing[k], "g"); /* g = algoritmo de busca B&B
 						    NULL = PL */
     t2=clock();
-
-    if (sol.zstar - dual[ncols+k] < -EPSILON) {
+    fprintf(stderr,"SOL: %.6lf\n",sol.zstar);
+    if (sol.zstar - dual[nrows+k] < -EPSILON) {
       int *mstart, *mrwind, nz;
       double *dmatval, *dlb, *dub, *custo;
 
@@ -137,9 +151,10 @@ bool ColumnGeneration::solvePricing() {
       // ADICIONA COLUNA
       //
       double c = 0.0;
+      
       for (int i = 0; i < (int)sol.xstar.size(); i++)
 	c += sol.xstar[i] * ipPricing[k]->getcost()[i];
-      ipMestre.addcol(sol.xstar, c,nz,&custo,&mstart,&mrwind,&dmatval,&dlb,&dub);
+      ipMestre.addcol(sol.xstar, k, c,nz,&custo,&mstart,&mrwind,&dmatval,&dlb,&dub);
       XPRSaddcols(probMestre,1,nz,custo,mstart,mrwind,dmatval,dlb,dub);
 
       column_added = true;
@@ -151,11 +166,11 @@ bool ColumnGeneration::solvePricing() {
 
     /* imprime resultado do pricing */
     printf("\n==========================\nResultado do Pricing %d", k);
-    printf("\nZstar (custo reduzido): %lf", sol.zstar - dual[ncols+k]);
+    printf("\nZstar (custo reduzido): %lf", sol.zstar - dual[nrows+k]);
     printf("\nTempo do pricing: %lf\n", tempo);
   }
   free(mindex);
-
+  
   return column_added;
 }
 
@@ -281,6 +296,12 @@ bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
   XPRSgetintcontrol(prob,XPRS_SOLUTIONFILE,&solfile); /* guarda valor */
   XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,0);	      /* reseta */
   XPRSgetsol(prob, lambda, NULL, dual, NULL);
+  for(int i=0;i<ipMestre.getnrows();i++) {
+    fprintf(stderr,"DUAL[%d] = %.6lf\n",i,dual[i]);
+  }
+  for(int i=0;i<ipMestre.getncols();i++) {
+    fprintf(stderr,"LAMBDA[%d] = %.6lf\n",i,lambda[i]);
+  }
   XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,solfile);  /* volta config anterior */
 
   /* testar se solucao lambda eh inteira. Se for, ver se solucao eh melhor e guardar  */

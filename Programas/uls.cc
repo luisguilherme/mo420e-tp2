@@ -23,11 +23,13 @@ ULS::ULS(const ULSInstance& instance) {
     if (i < instance.t) {
       columns[i][i] = 1;
       columns[i][instance.t + i] = 1;
-    } else if (instance.t <= i && i < 2*instance.t) {
-      columns[i][i] = -1;
+    } 
+    else if (instance.t <= i && i < 2*instance.t) {
+      columns[i][i-instance.t] = -1;
       if (i < 2*instance.t - 1)
-	columns[i+1][i] = 1;
-    } else if (i >= 2*instance.t)
+	columns[i][i-instance.t+1] = 1;
+    } 
+    else if (i >= 2*instance.t)
       columns[i][i - instance.t] = -M;
   }
 
@@ -133,9 +135,12 @@ double ULS::solve(std::vector <double>& sol) {
   for(int i=0;i<instance.t;i++) {
     int tdem = 0;
     int stock = 0;
+    int acc = 0;
+    C[i] = std::vector<double>(instance.t);
     for(int j=i;j<instance.t;j++) {
       tdem += instance.d[j];
-      C[i][j] = instance.f[i] + instance.p[i]*tdem + instance.d[j]*stock;
+      acc += instance.d[j]*stock;
+      C[i][j] = instance.f[i]*(tdem != 0) + instance.p[i]*tdem + acc;
       stock += instance.h[j];
     }
   }
@@ -152,6 +157,6 @@ double ULS::solve(std::vector <double>& sol) {
       }
     }
   }
-      
+  fprintf(stderr,"Opt: %6.1lf\n",C[0][instance.t-1]);
   return C[0][instance.t-1];
 }

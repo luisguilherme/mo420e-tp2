@@ -87,7 +87,8 @@ public:
     this->instance = instance;
 
     nrows = 2*instance.t + instance.m;
-    ncols = instance.m * instance.t;
+    ncols = instance.m // * instance.t
+      ;
 
     vvi x(ncols);
     vvi y(ncols);
@@ -101,31 +102,32 @@ public:
       }
     }
 
-    for(int prod=0,sch=0;prod<instance.m;prod++) {
-      for(int tp=0;tp<instance.t;tp++,sch++) {
-	int dem = demanda[prod];
+    for(int prod=0,sch=0;prod<instance.m;prod++,sch++) {
+    
+    // for(int prod=0,sch=0;prod<instance.m;prod++) {
+    //   for(int tp=0;tp<instance.t;tp++,sch++) {
+        int dem = demanda[prod];
 	for(int inst=0;inst<instance.t;inst++) {
-	  if (inst < tp) {
+	  // if (inst < tp) {
 	    int toprod = instance.d[prod][inst];
-	    dem -= toprod;
 	    x[sch].pb(toprod);
 	    y[sch].pb(1);
 	    s[sch].pb(0);
-	  } else if (inst == tp) { //produz toda a demanda
-	    x[sch].pb(dem);
-	    y[sch].pb(1);
-	    dem -= instance.d[prod][inst];
-	    s[sch].pb(dem);
-	  } else {
-	    x[sch].pb(0);
-	    y[sch].pb(0);
-	    dem -= instance.d[prod][inst];
-	    s[sch].pb(dem);
-	  } // end else
+	  // } else if (inst == tp) { //produz toda a demanda
+	  //   x[sch].pb(dem);
+	  //   y[sch].pb(1);
+	  //   dem -= instance.d[prod][inst];
+	  //   s[sch].pb(dem);
+	  // } else {
+	  //   x[sch].pb(0);
+	  //   y[sch].pb(0);
+	  //   dem -= instance.d[prod][inst];
+	  //   s[sch].pb(dem);
+	  // } // end else
 	} // end for inst
-      } // end for tp
+      // } // end for tp
     } // end for prod
-
+    
     columns = std::vector<std::vector<double> >(ncols);
     for(int col=0;col<ncols;col++) {
       columns[col] = std::vector<double>(2*instance.t + instance.m);
@@ -136,8 +138,8 @@ public:
 
     cost = std::vector<double>(ncols);
     /* Gera as colunas baseado no x */
-    for(int prod=0,col=0;prod<instance.m;prod++) {
-      for(int tp=0;tp<instance.t;tp++,col++) {
+    for(int prod=0,col=0;prod<instance.m;prod++,col++) {
+      // for(int tp=0;tp<instance.t;tp++,col++) {
 	int row = 0;
 
 	for(int inst=0;inst<instance.t;inst++,row++) {
@@ -158,9 +160,10 @@ public:
 	    instance.f[prod][inst]*y[col][inst] +
 	    instance.h[prod][inst]*s[col][inst];
 	}
-	inf += cost[col];
+	fprintf(stderr,"cost[%d] = %6.1lf\n",col,cost[col]);
+	inf += 2*cost[col];
 
-      } // end for tp
+      // } // end for tp
     } // end for prod
 
     /* "Cola" uma matriz identidade para garantir factibilidade
@@ -174,7 +177,7 @@ public:
 
   } // end MILSP
 
-  void addcol(std::vector<double> &col, double c,int& nz,double** custo,
+  void addcol(std::vector<double> &sol, int np, double c,int& nz,double** custo,
 	      int** colbeg, int** rowidx, double** matval, double** lb,
 	      double** ub) {
     *custo = (double *) malloc(sizeof(double));
@@ -182,6 +185,17 @@ public:
     *ub = (double *) malloc(sizeof(double));
     *colbeg = (int *) calloc(2,sizeof(int));
     
+    int tt = instance.t;
+    int mm = instance.m;
+
+    std::vector<double> col(2*tt + mm);
+    for(int i=0;i<tt;i++) {
+      col[i] = sol[2*tt + i];
+      col[i+tt] = sol[i];
+    }
+    col[2*tt + np] = 1;
+
+
     columns.pb(col);
     cost.pb(c);
     ncols++;
