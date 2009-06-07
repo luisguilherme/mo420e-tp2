@@ -86,7 +86,7 @@ double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
     for (int j = 0; j < ipPricing[pindex]->getnrows(); j++)
       delta += dual[j] * columns[i][j];
     mindex[i] = i;
-    cost[i] = obj[i] + delta;
+    cost[i] = obj[i] - delta;
   }
 
   return cost;
@@ -129,15 +129,21 @@ bool ColumnGeneration::solvePricing() {
 						    NULL = PL */
     t2=clock();
 
-    if (sol.zstar - dual[ncols+k] > EPSILON) {
+    if (sol.zstar - dual[ncols+k] < -EPSILON) {
+      int *mstart, *mrwind, nz;
+      double *dmatval, *dlb, *dub, *custo;
+
       //
       // ADICIONA COLUNA
       //
       double c = 0.0;
       for (int i = 0; i < (int)sol.xstar.size(); i++)
 	c += sol.xstar[i] * ipPricing[k]->getcost()[i];
-      ipMestre.addcol(sol.xstar, c);
+      ipMestre.addcol(sol.xstar, c,nz,&custo,&mstart,&mrwind,&dmatval,&dlb,&dub);
+      XPRSaddcols(probMestre,1,nz,custo,mstart,mrwind,dmatval,dlb,dub);
+
       column_added = true;
+      fprintf(stderr,"ADICIONEI COLUNA!!!!!!!!!!\n");
     }
 
     tempo=((double)(t2-t1))/CLOCKS_PER_SEC;

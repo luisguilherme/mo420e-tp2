@@ -18,7 +18,9 @@ public:
   virtual int getnrows() { return nrows; }
   virtual void getParam(int&,int&,char**,double**,double**,int**,int**,
 			double**,double**,double**,int&,char**,int**,bool&) { }
-  virtual void addcol(std::vector<double>&, double) {}
+  virtual void addcol(std::vector<double> &col, double c,int& nz,double** custo,
+	      int** colbeg, int** rowidx, double** matval, double** lb,
+	      double** ub) {}
 };
 
 #endif

@@ -174,10 +174,38 @@ public:
 
   } // end MILSP
 
-  void addcol(std::vector<double> &col, double c) {
+  void addcol(std::vector<double> &col, double c,int& nz,double** custo,
+	      int** colbeg, int** rowidx, double** matval, double** lb,
+	      double** ub) {
+    *custo = (double *) malloc(sizeof(double));
+    *lb = (double *) malloc(sizeof(double));
+    *ub = (double *) malloc(sizeof(double));
+    *colbeg = (int *) calloc(2,sizeof(int));
+    
     columns.pb(col);
     cost.pb(c);
     ncols++;
+
+    **custo = c;
+    **lb = 0.0;
+    **ub = 1.0;
+    (*colbeg)[0] = 0; (*colbeg)[1] = 1;
+
+    nz = 0;
+    for (int i = 0; i < nrows; i++) if (NONZERO(col[i])) nz++;
+    
+    *matval = (double *) calloc(nz,sizeof(double));
+    *rowidx = (int *) calloc(nz,sizeof(int));
+
+    int mpos = 0;
+        
+    for(int i=0;i<nrows;i++) {
+      if (NONZERO(col[i])) {
+	(*rowidx)[mpos] = i;
+	(*matval)[mpos++] = col[i];
+      }
+    }
+    
   }
 
 };
@@ -207,8 +235,8 @@ int main(int argc, char* argv[]) {
 
   ColumnGeneration cg(prob, pricing);
 
+  cg.configureModel(0, prob, pricing);
   for (int i = 0; i < 10; i++) {
-    cg.configureModel(0, prob, pricing);
     cg.solveRestricted();
     cg.solvePricing();
   }
