@@ -257,7 +257,7 @@ void ColumnGeneration::configureModel(int formato,
 /* IsIntegerSol                              */
 /* ========================================= */
 /* obtem o valor das variaveis duais e o valor da solucao. E retorna se sol eh inteira */
-inline bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
+bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
   int i, inteiro, solfile, colunas;
   double *lambda, *obj;
 
@@ -396,12 +396,13 @@ void XPRS_CC salvaMelhorSol(XPRSprob prob, void *psol) {
 			\n",__LINE__,xpress_ret, prob);
 
   /* guarda no pool de colunas se o custo reduzido da solucao inteira é negativo */
-  if (1-objval<0 && sol->totPool<MAX_POOL){
-    (sol->pool)[sol->totPool] = std::vector<double>(cols);
-    for(i=0;i<cols;i++)
-      (sol->pool)[sol->totPool][i]=x[i];
-    (sol->totPool)++;
-  }
+
+//   if (1-objval<0 && sol->totPool<MAX_POOL){
+//     (sol->pool)[sol->totPool] = std::vector<double>(cols);
+//     for(i=0;i<cols;i++)
+//       (sol->pool)[sol->totPool][i]=x[i];
+//     (sol->totPool)++;
+//   }
 
   /* testa se a solução é viável */
   viavel = true;

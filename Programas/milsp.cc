@@ -10,9 +10,6 @@
 
 
 class MILSP : public IntegerProgram {
-  std::vector<std::vector<double> > columns; //colunas transpostas
-  std::vector<double> cost; //tamanho dinâmico
-  int ncols, nrows;
   MILSPInstance instance;
 public:
 
