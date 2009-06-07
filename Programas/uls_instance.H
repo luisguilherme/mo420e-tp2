@@ -10,7 +10,7 @@
 typedef std::vector<int> vi;
 
 class ULSInstance : public Instance {
-  
+
 public:
 
   std::string nome;
@@ -25,8 +25,6 @@ public:
   ULSInstance() {}
   ULSInstance(std::string& nome, int t, vi& d, vi& f, vi& h, vi& p);
   
-  /* corrigir estas merdas depois */
-  virtual double* getNewObj(double* dual, int* mindex) { return NULL; }
   virtual int dim(void) { return 0; }
 };
 
