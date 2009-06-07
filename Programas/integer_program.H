@@ -2,9 +2,11 @@
 #define __INTEGER_PROGRAM_H__
 
 #include "instance.H"
+#include <vector>
 
 class IntegerProgram { 
   Instance instance;
+protected:
   std::vector<std::vector<double> > columns;
   std::vector<double> cost;
   int ncols, nrows;
