@@ -113,3 +113,45 @@ void ULS::getParam(int& ncol, int& nrow, char** rowtype,double** rhs,
   for (int i = 0; i < ncols; i++)
     (*obj)[i] = cost[i];
 }
+
+double ULS::solve(std::vector <double>& sol) {
+  /* Implementa o algoritmo de Wagher e Within. Esse algoritmo segue
+     dois princípios: 
+     1) Só se produz quando não há estoque (caso contrário, haveria
+     custos de estoque inúteis)
+     2) Sempre se produz para atender TODA a demanda de um ou mais
+     períodos
+     
+     Definimos como C[t1,t2] o menor custo para atender a demanda
+     entre t1 e t2. O objetivo do algoritmo é descobrir o valor de
+     C[0,T]. C[t1,t2] pode ser trocado por C[t1,k] + C [k,t2] t1 <= k
+     <= t2, se for essa opção mais barata. */
+  
+  std::vector<std::vector<double> > C(instance.t);
+  /* Calcula, inicialmente, o custo de produção a cada instante, para
+     atender um ou mais (podendo ser todos) os instantes posteriores */
+  for(int i=0;i<instance.t;i++) {
+    int tdem = 0;
+    int stock = 0;
+    for(int j=i;j<instance.t;j++) {
+      tdem += instance.d[j];
+      C[i][j] = instance.f[i] + instance.p[i]*tdem + instance.d[j]*stock;
+      stock += instance.h[j];
+    }
+  }
+  
+  /* Verifica se há partições mais baratas para produzir */
+  for(int m=0;m<instance.t;m++) {
+    for(int i=0;i<instance.t && i <= m;i++) {
+      for(int j=m;j<instance.t;j++) {
+	if (C[i][j] > C[i][m] + C[m][j]) {
+	  C[i][j] = C[i][m] + C[m][j];
+	  fprintf(stderr,"Produzir em %d e %d pra cumprir demanda até %d é melhor que só em %d\n",
+		  i,m,j,i);
+	}
+      }
+    }
+  }
+      
+  return C[0][instance.t-1];
+}

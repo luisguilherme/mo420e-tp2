@@ -13,6 +13,7 @@ class ULS : public IntegerProgram {
 public:
   void getParam(int&,int&,char**,double**,double**,int**,int**,
 			double**,double**,double**,int&,char**,int**,bool&);
+  double solve(std::vector<double>& sol);
   ULS(const ULSInstance& instance);
 };
 
