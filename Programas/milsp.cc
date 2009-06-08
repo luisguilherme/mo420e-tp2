@@ -238,6 +238,7 @@ public:
 };
 
 int main(int argc, char* argv[]) {
+  time_t start = time(&start);
   FILE* fp = fopen(argv[1], "r");
   MILSPInstance mi;
 
@@ -265,7 +266,7 @@ int main(int argc, char* argv[]) {
   cg.configureModel(0, prob, pricing);
   bool goon = true;
   int ncolumns = 0;
-  time_t start = time(&start);
+
   for (int i = 0;goon && ncolumns < 2000; i++) {
     cg.solveRestricted();
     int gencolums = cg.solvePricing();
@@ -282,6 +283,8 @@ int main(int argc, char* argv[]) {
   else {
     printf("## Sem soluções inteiras\n");
   }
+  time_t now = time(&now);
+  printf("TEMPO TOTAL: %02d:%02d",(now-start)/60,(now-start)%60);
   
   return 0;
 }

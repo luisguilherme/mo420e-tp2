@@ -21,7 +21,7 @@ public:
   virtual void addcol(std::vector<double> &col, int np, double c,int& nz,double** custo,
 	      int** colbeg, int** rowidx, double** matval, double** lb,
 	      double** ub) {}
-  virtual double solve(std::vector<double>&) { return 0.0; }
+  virtual double solve(std::vector<double>&, std::vector<double>&) { return 0.0; }
   virtual std::vector<double> piProductAk(double *dual) { return std::vector<double>(); }
 };
 
