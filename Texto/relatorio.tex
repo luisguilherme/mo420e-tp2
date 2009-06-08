@@ -37,12 +37,27 @@ Este trabalho consistiu nas seguintes atividades:
 \end{enumerate}
 
 \section{Implementação}
-A política de geração de colunas iniciais foi da seguinte forma: geramos
-uma matriz identidade para termos uma base viável e esquemas de produção da
+A política de geração de colunas iniciais foi da seguinte forma:
+geramos uma matriz identidade para termos uma base viável, e outros
+$M*T$ esquemas, um para cada produto em que no esquema $t$ do produto
+$k$ é produzida toda a demanda dos períodos de $t..T$ e nos períodos
+de $1..t-1$ é produzida a demanda do período. Observe que da forma
+como as colunas iniciais são geradas não necessiariamente se tem uma
+solução do MILSP\footnote{As colunas (por produto) formam uma matriz
+  triangular superior, portanto a chance de conflitos grande.}.
 
-Geramos limitantes duais quando o problema de pricing dá solução igual a
-zero, isto é, chegamos ao ótimo do problema reduzido. Também, a cada
-solução inteira, temos limitantes primais.
+Note que (na maioria dos casos) as colunas da matriz identidade não
+formam esquemas de produção e portanto não são válidas, por isso a
+estas colunas são atribuídos custos bastante altos de forma que sejam
+escolhidas para sair da base conforme colunas vão sendo geradas pelo
+\emph{pricing}. Vale dizer também que mesmo as colunas geradas pelo
+pricing podem não ser válidas já que estas são soluções do ULS e podem
+violar a capacidade de produção $C_t$ da máquina.
+
+Geramos limitantes duais quando o valor da solução do problema de
+pricing é igual a zero, isto é, não existe coluna que possa entrar na
+base e portanto chegamos ao ótimo do problema mestre relaxado. Também,
+a cada solução inteira, temos limitantes primais.
 
 A formulação inteira para o ULS foi da forma:
 
@@ -53,6 +68,19 @@ A formulação inteira para o ULS foi da forma:
       &  x_{t} \leq My_t &\forall t \in \{1..n\} \notag\\
       &  s_0 = 0, s_t, x_t \geq 0, y_t \in \{0,1\} \notag
 \end{align}
+
+A formulação utilizada não é a melhor no sentido de que há formulações
+compactas do ULS que descrevem a envoltória convexa deste problema
+\cite{wolsey2000ip}, no entanto a escolha desta formulação se deve ao
+fato de ser mais direta a transformação de sua solução em planos de
+produção (colunas) da formulação do MILSP utilizada.
+
+Para resolver o ULS foi utilizada o resolvedor de MIP do XPress, aqui
+é um ponto que seria vantajoso utilizar a formulação que descreve a
+envoltória convexa pois poderia ser utilizado um resolvedor de
+programação linear (Simplex) mais rápido que um de MIP já que na
+maioria dos casos os resolvedors de PLI utilizam algoritmos como o
+Simplex em subrotinas que calculam limitantes.
 
 %% \begin{equation}
 %%   min
@@ -69,8 +97,11 @@ A formulação inteira para o ULS foi da forma:
 %%  s_0 = 0, s_t, x_t \geq 0, y_t \in {0,1}
 %% \end{equation}
 
-O algoritmo de Wagner e Within foi implementado em $O(n^3)$, utilizando
-ideias presentes no algoritmo de Floyd-Warshall para grafos.  
+Como se conhece uma formulação compacta que descreve a envoltória
+convexa do ULS é de se esperar que se tenham algoritmos combinatórios
+para resolvê-lo, que é o caso. O algoritmo de Wagner e Within foi
+implementado em $O(n^3)$, utilizando ideias presentes no algoritmo de
+Floyd-Warshall para grafos.
 
 Preocupamo-nos em escrever um código que fosse reutilizável, isto é,
 dado um novo par ``problema mestre''-``problema restrito'', basta
@@ -80,9 +111,7 @@ geração de colunas via XPress.
 
 \section{Análise de resultados}
 
-\bibliographystyle{acm}
+\bibliographystyle{alpha}
 \bibliography{relatorio}
 
-
 \end{document}
-
