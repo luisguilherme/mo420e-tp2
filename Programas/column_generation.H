@@ -3,7 +3,7 @@
 
 #define MAX_CPU_TIME -1800 //trocar
 #define MAX_POOL 20 //trocar
-#define EPSILON 1e-9 //trocar
+#define EPSILON 1e-6 //trocar
 
 #include <cstdio>
 #include <cstdlib>

@@ -146,10 +146,13 @@ int ColumnGeneration::solvePricing() {
     xpress_ret = XPRSminim(probPricing[k], "g"); /* g = algoritmo de busca B&B
 						    NULL = PL */
     t2=clock();
-    fprintf(stderr,"SOL: %.6lf\n",sol.zstar);
+    // fprintf(stderr,"SOL: %.6lf\n", sol.zstar);
 
     /* verifica se coluna deve ser adicionada ao PMR */
-    if (sol.zstar - dual[nrows+k] < -EPSILON) {
+    double zstar = sol.zstar - dual[nrows+k];
+    if (fabs(zstar) < EPSILON) {
+      ;
+    } else if (sol.zstar - dual[nrows+k] < -EPSILON) {
       int *mstart, *mrwind, nz;
       double *dmatval, *dlb, *dub, *custo;
       double c = 0.0;
@@ -169,9 +172,11 @@ int ColumnGeneration::solvePricing() {
     printf("\n==========================\nResultado do Pricing %d", k);
     printf("\nZstar (custo reduzido): %lf", sol.zstar - dual[nrows+k]);
     printf("\nTempo do pricing: %lf\n", tempo);
+    printf("\nColuna Adicionada? %s\n", columns_added ? "S" : "N");
   }
 
   free(mindex);
+
   if (columns_added == 0) {
     printf("\nLimitante dual encontrado\n");
   }
