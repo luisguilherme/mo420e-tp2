@@ -187,8 +187,10 @@ double ULS::solve(std::vector <double>& piAk, std::vector <double>& sol) {
   }
   for(int i = 0;i<instance.t;i++) {
     if (sol[2*instance.t + i] > 0.3)
-      fprintf(stderr,"Produziu em %d\n",i);
+      ;
+      // fprintf(stderr,"Produziu em %d\n",i);
   }
-  fprintf(stderr,"Opt: %6.1lf\n",melhor[instance.t]);
+
+  // fprintf(stderr,"Opt: %6.1lf\n",melhor[instance.t]);
   return (melhor[instance.t]);
 }

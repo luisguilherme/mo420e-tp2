@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
   for (int i = 0;goon && ncolumns < 2000; i++) {
     cg.solveRestricted();
     int gencolums = cg.solvePricing();
-    goon &= (gencolums > 0);
+    goon = goon && (gencolums > 0);
     ncolumns += gencolums;
     time_t now = time(&now);
     if (now - start > 20*60) break;
