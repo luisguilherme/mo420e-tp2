@@ -125,17 +125,19 @@ double ULS::solve(std::vector <double>& sol) {
      períodos
      
      Definimos como C[t1,t2] o menor custo para atender a demanda
-     entre t1 e t2. O objetivo do algoritmo é descobrir o valor de
-     C[0,T]. C[t1,t2] pode ser trocado por C[t1,k] + C [k,t2] t1 <= k
-     <= t2, se for essa opção mais barata. */
+     entre t1 e t2 exclusive. O objetivo do algoritmo é descobrir o valor de
+     C[0,T]. C[t1,t2] pode ser trocado por C[t1,k] + C [k,t2] t1 < k
+     < t2, se for essa opção mais barata. */
   
   std::vector<std::vector<double> > C(instance.t);
+  std::vector<int> pai(instance.t);
   /* Calcula, inicialmente, o custo de produção a cada instante, para
      atender um ou mais (podendo ser todos) os instantes posteriores */
   for(int i=0;i<instance.t;i++) {
     int tdem = 0;
     int stock = 0;
     int acc = 0;
+    pai[i] = i;
     C[i] = std::vector<double>(instance.t);
     for(int j=i;j<instance.t;j++) {
       tdem += instance.d[j];
@@ -144,19 +146,48 @@ double ULS::solve(std::vector <double>& sol) {
       stock += instance.h[j];
     }
   }
-  
+    
   /* Verifica se há partições mais baratas para produzir */
-  for(int m=0;m<instance.t;m++) {
-    for(int i=0;i<instance.t && i <= m;i++) {
-      for(int j=m;j<instance.t;j++) {
-	if (C[i][j] > C[i][m] + C[m][j]) {
-	  C[i][j] = C[i][m] + C[m][j];
-	  fprintf(stderr,"Produzir em %d e %d pra cumprir demanda até %d é melhor que só em %d\n",
-		  i,m,j,i);
-	}
+
+  std::vector<double> melhor(instance.t+1);
+  melhor[0] = 0;
+  for(int f=1;f<=instance.t;f++) {
+    melhor[f] = C[0][f-1] + melhor[0];
+    for(int i=1;i<f;i++) {
+      melhor[f] = std::min(melhor[f],C[i][f-1] + melhor[i]);
+    }
+  }
+
+  // for(int m=1;m<instance.t;m++) {
+  //   for(int i=0;i<instance.t && i < m;i++) {
+  //     for(int j=m+1;j<=instance.t;j++) {
+  // 	if (C[i][j] > C[i][m] + C[m][j]) {
+  // 	  C[i][j] = C[i][m] + C[m][j];
+  // 	  fprintf(stderr,"Produzir em %d e %d pra cumprir demanda até %d é melhor que só em %d\n",
+  // 		  i,m,j,i);
+  // 	}
+  //     }
+  //   }
+  // }
+
+  sol = std::vector<double>(3*instance.t);
+  /* Constrói vetor {x,s,y} */
+  int next = instance.t-1;
+  for(int f=instance.t;f>0;f=next) {
+    next = 0;
+    for(int j=f-1;j>=0;j--) {
+      if (C[j][f-1] == melhor[f]) {
+	/* produziu em j a demanda de todo mundo entre j e f-1 */
+	sol[2*instance.t + j] = 1;
+	next = j;
+	break;
       }
     }
   }
-  fprintf(stderr,"Opt: %6.1lf\n",C[0][instance.t-1]);
-  return C[0][instance.t-1];
+  for(int i = 0;i<instance.t;i++) {
+    if (sol[2*instance.t + i] > 0.3)
+      fprintf(stderr,"Produziu em %d\n",i);
+  }
+  fprintf(stderr,"Opt: %6.1lf\n",melhor[instance.t]);
+  return (melhor[instance.t]);
 }

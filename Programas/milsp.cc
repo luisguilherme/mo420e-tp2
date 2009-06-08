@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <ctime>
 #include "definitions.H"
 #include "uls.H"
 
@@ -219,6 +220,21 @@ public:
     
   }
 
+
+  // std::vector<double> piProductAk(std::vector<double>& pi, int k) {
+  //   int mk = 2*instance.t + k;
+  //   double ret;
+  //   for(int p=0;p<ncols;p++) {
+  //     if (columns[p][mk] > 1-EPSILON) {
+  // 	ret = 0;
+  // 	for(int j=0;j<2*instance.t;j++) {
+  // 	  ret += pi[j]*columns[p][j];
+  // 	}
+  // 	return ret;
+  //     }
+  //   }
+  //   return 0.0;
+  // }
 };
 
 int main(int argc, char* argv[]) {
@@ -247,10 +263,17 @@ int main(int argc, char* argv[]) {
   ColumnGeneration cg(prob, pricing);
 
   cg.configureModel(0, prob, pricing);
-  for (int i = 0; i < 10; i++) {
+  bool goon = true;
+  int ncolumns = 0;
+  time_t start = time(&start);
+  for (int i = 0;goon && ncolumns < 2000; i++) {
     cg.solveRestricted();
-    cg.solvePricing();
+    int gencolums = cg.solvePricing();
+    goon &= (gencolums > 0);
+    ncolumns += gencolums;
+    time_t now = time(&now);
+    if (now - start > 20*60) break;
   }
-
+  
   return 0;
 }

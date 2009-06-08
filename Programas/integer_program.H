@@ -22,6 +22,7 @@ public:
 	      int** colbeg, int** rowidx, double** matval, double** lb,
 	      double** ub) {}
   virtual double solve(std::vector<double>&) { return 0.0; }
+  virtual double piProductAk(std::vector<double>& pi, int k) { return 0.0; }
 };
 
 #endif

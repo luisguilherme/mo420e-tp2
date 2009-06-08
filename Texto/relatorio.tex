@@ -37,9 +37,12 @@ Este trabalho consistiu nas seguintes atividades:
 \end{enumerate}
 
 \section{Implementação}
-A política de geração de colunas iniciais foi...
+A política de geração de colunas iniciais foi da seguinte forma: geramos
+uma matriz identidade para termos uma base viável e esquemas de produção da
 
-Geramos limitantes duais...
+Geramos limitantes duais quando o problema de pricing dá solução igual a
+zero, isto é, chegamos ao ótimo do problema reduzido. Também, a cada
+solução inteira, temos limitantes primais.
 
 A formulação inteira para o ULS foi da forma:
 minimize
@@ -67,9 +70,6 @@ poderemos utilizar nosso código sem outras alterações para fazer a
 geração de colunas via XPress.
 
 \section{Análise de resultados}
-
-\section{Nota final}
-
 
 \bibliographystyle{acm}
 \bibliography{relatorio}

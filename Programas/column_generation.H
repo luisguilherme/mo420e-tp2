@@ -53,8 +53,8 @@ protected:
 public:
   ColumnGeneration(IntegerProgram &, std::vector<IntegerProgram*>&);
   int loadModel(IntegerProgram&, XPRSprob, std::string);
-  void solveRestricted();
-  bool solvePricing();
+  void solveRestricted(); 
+  int solvePricing(); //retorna número de colunas criadas
   void configureModel(int, IntegerProgram& ip, std::vector<IntegerProgram*>& pricing);
   //void detSolvePricing();
 };

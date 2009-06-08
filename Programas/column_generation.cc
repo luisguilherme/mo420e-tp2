@@ -61,6 +61,7 @@ void ColumnGeneration::solveRestricted() {
   if (isIntegerSol(probMestre)){
     totalInteiros++;
     if (z_PMR < melhorPrimal){
+      fprintf(stderr,"Melhor primal: %.1lf\n",z_PMR);
       melhorPrimal = z_PMR;
       itmelhorPrimal = it;
     }
@@ -91,19 +92,17 @@ double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
     cost[i] = obj[i];
     for (int j = 0; j < ipPricing[pindex]->getnrows(); j++) {
       cost[i] -= dual[j] * columns[i][j];
-      fprintf(stderr,"Dual[%d] = %.10lf\n",j,dual[j]);
-
     }
     mindex[i] = i;
     
-    fprintf(stderr,"Custo reduzido da coluna %d é %6.1lf\n",i,cost[i]);
-    fprintf(stderr,"Objetivo da variavel %d é %6.1lf\n",i,obj[i]);
+    // fprintf(stderr,"Custo reduzido da coluna %d é %6.1lf\n",i,cost[i]);
+    // fprintf(stderr,"Objetivo da variavel %d é %6.1lf\n",i,obj[i]);
   }
 
   return cost;
 }
 
-bool ColumnGeneration::solvePricing() {
+int ColumnGeneration::solvePricing() {
   /*========================================================================= */
   /* resolve o problema de pricing                                            */
   /*========================================================================= */
@@ -111,7 +110,7 @@ bool ColumnGeneration::solvePricing() {
 
   // podem ser vários subproblemas de pricing
   int nrows, ncols, *mindex;
-  bool column_added = false;
+  int columns_added = 0;
 
   // tem pelos menos um problema de pricing
   XPRSgetintattrib(probPricing[0], XPRS_ROWS, &nrows);
@@ -157,8 +156,7 @@ bool ColumnGeneration::solvePricing() {
       ipMestre.addcol(sol.xstar, k, c,nz,&custo,&mstart,&mrwind,&dmatval,&dlb,&dub);
       XPRSaddcols(probMestre,1,nz,custo,mstart,mrwind,dmatval,dlb,dub);
 
-      column_added = true;
-      fprintf(stderr,"ADICIONEI COLUNA!!!!!!!!!!\n");
+      columns_added++;
     }
 
     tempo=((double)(t2-t1))/CLOCKS_PER_SEC;
@@ -170,8 +168,10 @@ bool ColumnGeneration::solvePricing() {
     printf("\nTempo do pricing: %lf\n", tempo);
   }
   free(mindex);
-  
-  return column_added;
+  if (columns_added == 0) {
+    printf("\nLimitante dual encontrado\n");
+  }
+  return columns_added;
 }
 
 /* Cria, Carrega e configura cada modelo */
@@ -296,12 +296,12 @@ bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
   XPRSgetintcontrol(prob,XPRS_SOLUTIONFILE,&solfile); /* guarda valor */
   XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,0);	      /* reseta */
   XPRSgetsol(prob, lambda, NULL, dual, NULL);
-  for(int i=0;i<ipMestre.getnrows();i++) {
-    fprintf(stderr,"DUAL[%d] = %.6lf\n",i,dual[i]);
-  }
-  for(int i=0;i<ipMestre.getncols();i++) {
-    fprintf(stderr,"LAMBDA[%d] = %.6lf\n",i,lambda[i]);
-  }
+  // for(int i=0;i<ipMestre.getnrows();i++) {
+  //   // fprintf(stderr,"DUAL[%d] = %.6lf\n",i,dual[i]);
+  // }
+  // for(int i=0;i<ipMestre.getncols();i++) {
+  //   // fprintf(stderr,"LAMBDA[%d] = %.6lf\n",i,lambda[i]);
+  // }
   XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,solfile);  /* volta config anterior */
 
   /* testar se solucao lambda eh inteira. Se for, ver se solucao eh melhor e guardar  */
