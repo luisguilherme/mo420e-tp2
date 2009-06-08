@@ -91,13 +91,13 @@ double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
     cost[i] = obj[i];
     for (int j = 0; j < ipPricing[pindex]->getnrows(); j++) {
       cost[i] -= dual[j] * columns[i][j];
-      fprintf(stderr,"Dual[%d] = %.10lf\n",j,dual[j]);
+      // fprintf(stderr,"Dual[%d] = %.10lf\n",j,dual[j]);
 
     }
     mindex[i] = i;
     
-    fprintf(stderr,"Custo reduzido da coluna %d é %6.1lf\n",i,cost[i]);
-    fprintf(stderr,"Objetivo da variavel %d é %6.1lf\n",i,obj[i]);
+    // fprintf(stderr,"Custo reduzido da coluna %d é %6.1lf\n",i,cost[i]);
+    // fprintf(stderr,"Objetivo da variavel %d é %6.1lf\n",i,obj[i]);
   }
 
   return cost;
@@ -296,12 +296,14 @@ bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
   XPRSgetintcontrol(prob,XPRS_SOLUTIONFILE,&solfile); /* guarda valor */
   XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,0);	      /* reseta */
   XPRSgetsol(prob, lambda, NULL, dual, NULL);
-  for(int i=0;i<ipMestre.getnrows();i++) {
-    fprintf(stderr,"DUAL[%d] = %.6lf\n",i,dual[i]);
-  }
-  for(int i=0;i<ipMestre.getncols();i++) {
-    fprintf(stderr,"LAMBDA[%d] = %.6lf\n",i,lambda[i]);
-  }
+
+  // for(int i=0;i<ipMestre.getnrows();i++) {
+  //   fprintf(stderr,"DUAL[%d] = %.6lf\n",i,dual[i]);
+  // }
+  // for(int i=0;i<ipMestre.getncols();i++) {
+  //   fprintf(stderr,"LAMBDA[%d] = %.6lf\n",i,lambda[i]);
+  // }
+
   XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,solfile);  /* volta config anterior */
 
   /* testar se solucao lambda eh inteira. Se for, ver se solucao eh melhor e guardar  */
