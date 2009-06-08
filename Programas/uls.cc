@@ -180,10 +180,13 @@ double ULS::solve(std::vector <double>& piAk, std::vector <double>& sol) {
       if (C[j][f-1] == melhor[f]) {
 	/* produziu em j a demanda de todo mundo entre j e f-1 */
 	int s = 0;
-	for (int k = j; k < f; k++) s += instance.d[k];
+	for (int k = j; k < f; k++) { s += instance.d[k]; }
 	sol[2*instance.t + j] = 1; // variavel y
-	sol[j] = melhor[f];	   // variavel x
-	sol[instance.t + j] = s;   // variavel s
+	sol[j] = s;	   // variavel x
+	for (int k = j;k < f;k++) {
+	  sol[2*instance.t + k] = s;
+	  s -= instance.d[k+1];
+	}
 	next = j;
 	break;
       }
