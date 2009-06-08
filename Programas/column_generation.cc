@@ -4,9 +4,9 @@
    lê todos os dados da entrada bla bla bla
    escolhe as colunas
    while (1) {
-     resolve o problema restrito (limitante primal do mestre relaxado)
-     verifica se é inteira (limitante primal do mestre)
-     resolve o problema de pricing (verifica se restrito é dual-viável)
+   resolve o problema restrito (limitante primal do mestre relaxado)
+   verifica se é inteira (limitante primal do mestre)
+   resolve o problema de pricing (verifica se restrito é dual-viável)
      verifica se a solução do restrito é ótima (pricing)
        se não, gera colunas; continue
      verifica se é inteira (ótima para o PI)
@@ -63,7 +63,7 @@ void ColumnGeneration::solveRestricted() {
   if (isIntegerSol(probMestre)){
     totalInteiros++;
     if (z_PMR < melhorPrimal){
-      fprintf(stderr,"Melhor primal: %.1lf\n",z_PMR);
+      fprintf(stderr,"it %d: Melhor primal: %.1lf\n",it,z_PMR);
       melhorPrimal = z_PMR;
       itmelhorPrimal = it;
     }
@@ -180,7 +180,7 @@ int ColumnGeneration::solvePricing() {
   free(mindex);
 
   if (columns_added == 0) {
-    printf("\nLimitante dual encontrado\n");
+    fprintf(stderr,"it %d: Limitante dual encontrado\n",it);
   }
 
   return columns_added;
@@ -317,7 +317,7 @@ bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
       inteiro=0;
     z_PMR +=obj[i]*lambda[i];
   }
-
+  fprintf(stderr,"it %d: z = %.3lf\n",it,z_PMR);
   free(lambda);
   free(obj);
 
