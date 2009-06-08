@@ -3,7 +3,6 @@
 
 #define MAX_CPU_TIME -1800 //trocar
 #define MAX_POOL 20 //trocar
-#define EPSILON 1e-6 //trocar
 
 #include <cstdio>
 #include <cstdlib>
@@ -15,6 +14,7 @@
 #include "instance.H"
 #include "integer_program.H"
 #include "xprs.h"
+#include "definitions.H"
 
 typedef struct {
   /* para pool de colunas */
@@ -40,6 +40,8 @@ class ColumnGeneration {
   int xpress_ret;
   double tempo, tempoLP, tempoPricing;
   double z_PMR;
+
+  std::vector<double> piAk;
 
 protected:
   inline bool isIntegerSol(XPRSprob prob);

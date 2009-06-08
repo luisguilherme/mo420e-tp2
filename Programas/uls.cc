@@ -116,7 +116,7 @@ void ULS::getParam(int& ncol, int& nrow, char** rowtype,double** rhs,
     (*obj)[i] = cost[i];
 }
 
-double ULS::solve(std::vector <double>& sol) {
+double ULS::solve(std::vector <double>& piAk, std::vector <double>& sol) {
   /* Implementa o algoritmo de Wagher e Within. Esse algoritmo segue
      dois princípios: 
      1) Só se produz quando não há estoque (caso contrário, haveria
@@ -142,8 +142,8 @@ double ULS::solve(std::vector <double>& sol) {
     for(int j=i;j<instance.t;j++) {
       tdem += instance.d[j];
       acc += instance.d[j]*stock;
-      C[i][j] = instance.f[i]*(tdem != 0) + instance.p[i]*tdem + acc;
-      stock += instance.h[j];
+      C[i][j] = (instance.f[i]-piAk[2*instance.t+i])*(tdem != 0) + (instance.p[i]-piAk[i])*tdem + acc;
+      stock += instance.h[j] - piAk[instance.t + j];
     }
   }
     
@@ -174,6 +174,7 @@ double ULS::solve(std::vector <double>& sol) {
   /* Constrói vetor {x,s,y} */
   int next = instance.t-1;
   for(int f=instance.t;f>0;f=next) {
+
     next = 0;
     for(int j=f-1;j>=0;j--) {
       if (C[j][f-1] == melhor[f]) {

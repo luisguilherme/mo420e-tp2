@@ -89,7 +89,7 @@ double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
 
   // std::vector<std::vector<double> > & columns = ipPricing[pindex]->getcolumns();
   std::vector<double> & obj = ipPricing[pindex]->getcost();
-  std::vector<double> piAk = ipMestre.piProductAk(dual);
+  piAk = ipMestre.piProductAk(dual);
 
   for (int i = 0; i < colunas; i++) {
     cost[i] = obj[i] - piAk[i];
@@ -143,7 +143,7 @@ int ColumnGeneration::solvePricing() {
     xpress_ret = XPRSsetdblcontrol(probPricing[k], XPRS_MIPABSCUTOFF, sol.zstar);
 
     std::vector<double> sollll;
-    ipPricing[k]->solve(sollll);    
+    ipPricing[k]->solve(piAk,sollll);    
     t1=clock();
     xpress_ret = XPRSminim(probPricing[k], "g"); /* g = algoritmo de busca B&B
 						    NULL = PL */
@@ -313,7 +313,7 @@ bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
   inteiro=1;
   z_PMR=0.0;
   for(i=0;i<colunas;i++){
-    if ((lambda[i]-trunc(lambda[i]))>EPSILON)
+    if ((lambda[i]-trunc(lambda[i]))>EPSILON && (ceil(lambda[i]) - lambda[i])>EPSILON)
       inteiro=0;
     z_PMR +=obj[i]*lambda[i];
   }
