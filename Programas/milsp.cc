@@ -220,6 +220,22 @@ public:
     
   }
 
+  std::vector<double> piProductAk(double *dual) {
+    std::vector<double> piAk(3*instance.t, 0.0);
+
+    for (int i = 0; i < instance.t; i++)
+      //piAk[i] = dual[i];
+      piAk[i] = dual[i+instance.t];
+
+    for (int i = instance.t; i < 2*instance.t; i++)
+      piAk[i] = 0.0;
+
+    for (int i = 2*instance.t; i < 3*instance.t; i++)
+      //piAk[i] = dual[i-instance.t];
+     piAk[i] = dual[i-2*instance.t];
+
+    return piAk;
+  }
 
   // std::vector<double> piProductAk(std::vector<double>& pi, int k) {
   //   int mk = 2*instance.t + k;
@@ -273,6 +289,7 @@ int main(int argc, char* argv[]) {
     ncolumns += gencolums;
     time_t now = time(&now);
     if (now - start > 20*60) break;
+    // getchar();
   }
 
   if (cg.totalInteiros > 0) {

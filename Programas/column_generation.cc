@@ -85,19 +85,24 @@ double *ColumnGeneration::getNewObj(int pindex, int *mindex) {
   XPRSgetintattrib(probPricing[pindex], XPRS_COLS, &colunas);
   cost = (double *)calloc(colunas, sizeof(double));
 
-  std::vector<std::vector<double> > & columns = ipPricing[pindex]->getcolumns();
-  std::vector<double > & obj = ipPricing[pindex]->getcost();
+  // std::vector<std::vector<double> > & columns = ipPricing[pindex]->getcolumns();
+  std::vector<double> & obj = ipPricing[pindex]->getcost();
+  std::vector<double> piAk = ipMestre.piProductAk(dual);
 
   for (int i = 0; i < colunas; i++) {
-    cost[i] = obj[i];
-    for (int j = 0; j < ipPricing[pindex]->getnrows(); j++) {
-      cost[i] -= dual[j] * columns[i][j];
-    }
+    cost[i] = obj[i] - piAk[i];
     mindex[i] = i;
-    
+  }
+
+  // for (int i = 0; i < colunas; i++) {
+  //   cost[i] = obj[i];
+    // for (int j = 0; j < ipPricing[pindex]->getnrows(); j++) {
+    //   cost[i] -= dual[j] * columns[i][j];
+    // }
+    // mindex[i] = i;
     // fprintf(stderr,"Custo reduzido da coluna %d é %6.1lf\n",i,cost[i]);
     // fprintf(stderr,"Objetivo da variavel %d é %6.1lf\n",i,obj[i]);
-  }
+  // }
 
   return cost;
 }
