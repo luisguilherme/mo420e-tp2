@@ -45,20 +45,29 @@ zero, isto é, chegamos ao ótimo do problema reduzido. Também, a cada
 solução inteira, temos limitantes primais.
 
 A formulação inteira para o ULS foi da forma:
-minimize
-\begin{equation}
- \sum_{t=1}^n p_tx_t + \sum_{t=1}^n h_ts_t + \sum_{t=1}^n f_ty_t
-\end{equation}
-s.a
-\begin{equation}
- s_{t-1} + x_t = d_t + s_t \forall t \in \{1..n\}
-\end{equation}
-\begin{equation}
- x_{t} \leq My_t \forall t \in \{1..n\}
-\end{equation}
-\begin{equation}
- s_0 = 0, s_t, x_t \geq 0, y_t \in {0,1}
-\end{equation}
+
+\begin{align}
+  min \hspace{0.2cm}&  \sum_{t=1}^n p_tx_t + \sum_{t=1}^n h_ts_t + \sum_{t=1}^n
+  f_ty_t \notag\\
+  s.a \hspace{0.2cm}&  s_{t-1} + x_t = d_t + s_t &\forall t \in \{1..n\} \notag\\
+      &  x_{t} \leq My_t &\forall t \in \{1..n\} \notag\\
+      &  s_0 = 0, s_t, x_t \geq 0, y_t \in \{0,1\} \notag
+\end{align}
+
+%% \begin{equation}
+%%   min
+%%  \sum_{t=1}^n p_tx_t + \sum_{t=1}^n h_ts_t + \sum_{t=1}^n f_ty_t
+%% \end{equation}
+
+%% \begin{equation}
+%%   s.a s_{t-1} + x_t = d_t + s_t \forall t \in \{1..n\}
+%% \end{equation}
+%% \begin{equation}
+%%  x_{t} \leq My_t \forall t \in \{1..n\}
+%% \end{equation}
+%% \begin{equation}
+%%  s_0 = 0, s_t, x_t \geq 0, y_t \in {0,1}
+%% \end{equation}
 
 O algoritmo de Wagner e Within foi implementado em $O(n^3)$, utilizando
 ideias presentes no algoritmo de Floyd-Warshall para grafos.  

@@ -224,33 +224,17 @@ public:
     std::vector<double> piAk(3*instance.t, 0.0);
 
     for (int i = 0; i < instance.t; i++)
-      //piAk[i] = dual[i];
       piAk[i] = dual[i+instance.t];
 
     for (int i = instance.t; i < 2*instance.t; i++)
       piAk[i] = 0.0;
 
     for (int i = 2*instance.t; i < 3*instance.t; i++)
-      //piAk[i] = dual[i-instance.t];
-     piAk[i] = dual[i-2*instance.t];
+      piAk[i] = dual[i-2*instance.t];
 
     return piAk;
   }
 
-  // std::vector<double> piProductAk(std::vector<double>& pi, int k) {
-  //   int mk = 2*instance.t + k;
-  //   double ret;
-  //   for(int p=0;p<ncols;p++) {
-  //     if (columns[p][mk] > 1-EPSILON) {
-  // 	ret = 0;
-  // 	for(int j=0;j<2*instance.t;j++) {
-  // 	  ret += pi[j]*columns[p][j];
-  // 	}
-  // 	return ret;
-  //     }
-  //   }
-  //   return 0.0;
-  // }
 };
 
 int main(int argc, char* argv[]) {

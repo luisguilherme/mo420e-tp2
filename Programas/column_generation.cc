@@ -147,13 +147,11 @@ int ColumnGeneration::solvePricing() {
 						    NULL = PL */
     t2=clock();
     fprintf(stderr,"SOL: %.6lf\n",sol.zstar);
+
+    /* verifica se coluna deve ser adicionada ao PMR */
     if (sol.zstar - dual[nrows+k] < -EPSILON) {
       int *mstart, *mrwind, nz;
       double *dmatval, *dlb, *dub, *custo;
-
-      //
-      // ADICIONA COLUNA
-      //
       double c = 0.0;
       
       for (int i = 0; i < (int)sol.xstar.size(); i++)
@@ -172,10 +170,12 @@ int ColumnGeneration::solvePricing() {
     printf("\nZstar (custo reduzido): %lf", sol.zstar - dual[nrows+k]);
     printf("\nTempo do pricing: %lf\n", tempo);
   }
+
   free(mindex);
   if (columns_added == 0) {
     printf("\nLimitante dual encontrado\n");
   }
+
   return columns_added;
 }
 
@@ -207,7 +207,6 @@ void ColumnGeneration::configureModel(int formato,
     /* Carga e configuracao dos parametros de controle do XPRESS para o subprob de pricing  */
     /* ==================================================================================== */
 
-    /* ALTERAR DEPOIS!!!  */
     /* limita o tempo de execucao */
     xpress_ret=XPRSsetintcontrol(probPricing[i], XPRS_MAXTIME,MAX_CPU_TIME);
     if (xpress_ret)
@@ -301,12 +300,6 @@ bool ColumnGeneration::isIntegerSol(XPRSprob prob) {
   XPRSgetintcontrol(prob,XPRS_SOLUTIONFILE,&solfile); /* guarda valor */
   XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,0);	      /* reseta */
   XPRSgetsol(prob, lambda, NULL, dual, NULL);
-  // for(int i=0;i<ipMestre.getnrows();i++) {
-  //   // fprintf(stderr,"DUAL[%d] = %.6lf\n",i,dual[i]);
-  // }
-  // for(int i=0;i<ipMestre.getncols();i++) {
-  //   // fprintf(stderr,"LAMBDA[%d] = %.6lf\n",i,lambda[i]);
-  // }
   XPRSsetintcontrol(prob,XPRS_SOLUTIONFILE,solfile);  /* volta config anterior */
 
   /* testar se solucao lambda eh inteira. Se for, ver se solucao eh melhor e guardar  */
@@ -452,7 +445,7 @@ void XPRS_CC salvaMelhorSol(XPRSprob prob, void *psol) {
     if (xpress_ret)
       errormsg("salvaMelhorSol: XPRSsetdblcontrol.\n",__LINE__,xpress_ret, prob);
   }
+
   free(x);
   return;
-
 }
