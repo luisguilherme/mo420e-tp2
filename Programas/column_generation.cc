@@ -30,7 +30,7 @@ ColumnGeneration::ColumnGeneration(IntegerProgram &ip, std::vector<IntegerProgra
   tPMR = 0;
   it = 0;
   totalInteiros = 0;
-  melhorPrimal = XPRESS_PLUSINFINITY;
+  melhorPrimal = XPRS_PLUSINFINITY;
 
   printf("\n==========================\nOtimizacao do LP e IP");
 }
