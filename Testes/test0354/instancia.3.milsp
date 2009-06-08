@@ -1,0 +1,401 @@
+
+==========================
+Otimizacao do LP e IP
+Reading Problem pricing0
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem pricing1
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem pricing2
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem pricing3
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem pricing4
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem pricing5
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem pricing6
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem pricing7
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem pricing8
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem pricing9
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem pricing10
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem pricing11
+Problem Statistics
+          54 (      0 spare) rows
+          81 (      0 spare) structural columns
+         134 (      0 spare) non-zero elements
+Global Statistics
+          27 entities        0 sets        0 set members
+
+Reading Problem Mestre
+Problem Statistics
+          66 (      0 spare) rows
+         390 (     50 spare) structural columns
+        6412 (      0 spare) non-zero elements
+Global Statistics
+           0 entities        0 sets        0 set members
+
+==========================
+Otimizacao do PMR 
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0           .000000      D     12     0      12.000000     0
+    36       1393830587.      D      0     0        .000000     0
+Optimal solution found
+
+Iteracao: 0
+- Valor da solucao otima do PMR =1393830587.000000 
+- Tempo do LP = 0.000000
+
+==========================
+Otimizacao do Pricing 
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.96532E+11      D     19     0    39050.00004     0
+    31       23649.95391      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 0
+Zstar (custo reduzido): -126671262.000000
+Tempo do pricing: 0.010000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -2.99049E+11      D     17     0    29450.00004     0
+    32       39713.53990      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 1
+Zstar (custo reduzido): -126711634.000000
+Tempo do pricing: 0.020000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.98817E+11      D     19     0    39275.00004     0
+    36       38458.61744      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 2
+Zstar (custo reduzido): -126722559.000000
+Tempo do pricing: 0.010000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.70384E+11      D     18     0    36475.00004     0
+    27       112689.3968      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 3
+Zstar (custo reduzido): -126804859.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.36113E+11      D     18     0    33100.00004     0
+    30       70052.38066      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 4
+Zstar (custo reduzido): -126782611.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.66830E+11      D     18     0    36125.00004     0
+    32       174144.8270      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 5
+Zstar (custo reduzido): -126726854.000000
+Tempo do pricing: 0.010000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.87139E+11      D     19     0    38125.00004     0
+    29       206993.9016      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 6
+Zstar (custo reduzido): -126814253.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.58960E+11      D     18     0    35350.00004     0
+    33       103703.7129      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 7
+Zstar (custo reduzido): -126701859.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.98055E+11      D     19     0    39200.00004     0
+    40       65829.35204      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 8
+Zstar (custo reduzido): -126728605.000000
+Tempo do pricing: 0.030000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.38144E+11      D     18     0    33300.00004     0
+    37       38884.18919      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 9
+Zstar (custo reduzido): -126661993.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.73938E+11      D     18     0    36825.00004     0
+    32       27408.73863      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 10
+Zstar (custo reduzido): -126677321.000000
+Tempo do pricing: 0.010000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.81554E+11      D     19     0    37575.00004     0
+    29       47718.78244      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 11
+Zstar (custo reduzido): -126741594.000000
+Tempo do pricing: 0.010000
+
+==========================
+Otimizacao do PMR 
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -126914817.0      D     29     0     107.771484     0
+    36       1014134005.      D      0     0        .000000     0
+Optimal solution found
+
+Iteracao: 1
+- Valor da solucao otima do PMR =1014134005.000000 
+- Tempo do LP = 0.000000
+
+==========================
+Otimizacao do Pricing 
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0       3.69319E+10      D      2     0    49984.00002     0
+     2       3.75968E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 0
+Zstar (custo reduzido): 37470161814.000000
+Tempo do pricing: 0.010000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0      -3.85875E+12      D      8     0    173788.8214     0
+     7       2.17646E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 1
+Zstar (custo reduzido): 21637927336.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0       3.50300E+10      D      2     0    50272.00002     0
+     2       3.56983E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 2
+Zstar (custo reduzido): 35571609219.000000
+Tempo do pricing: 0.010000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0       3.84802E+10      D      2     0    46688.00002     0
+     2       3.91005E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 3
+Zstar (custo reduzido): 38973794043.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0       4.13054E+10      D      2     0    42368.00002     0
+     2       4.18685E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 4
+Zstar (custo reduzido): 41741885926.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0       3.64739E+10      D      2     0    46240.00002     0
+     2       3.70885E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 5
+Zstar (custo reduzido): 36961769013.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0       3.57008E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 6
+Zstar (custo reduzido): 35574069220.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0       3.73668E+10      D      2     0    45248.00002     0
+     2       3.79677E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 7
+Zstar (custo reduzido): 37841043971.000000
+Tempo do pricing: 0.010000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0       3.32662E+10      D      2     0    50176.00002     0
+     2       3.39330E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 8
+Zstar (custo reduzido): 33806336900.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0       3.79482E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 9
+Zstar (custo reduzido): 37821463111.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0       4.26501E+10      D      2     0    47136.00002     0
+     2       4.32762E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 10
+Zstar (custo reduzido): 43149532424.000000
+Tempo do pricing: 0.000000
+
+   Its         Obj Value      S   Ninf  Nneg        Sum Inf  Time
+     0       3.11381E+10      D      2     0    48096.00002     0
+     2       3.17773E+10      D      0     0        .000000     0
+Optimal solution found
+ *** Relative MIP gap less than MIPRELSTOP ***
+
+==========================
+Resultado do Pricing 11
+Zstar (custo reduzido): 31650633948.000000
+Tempo do pricing: 0.010000
+
+Limitante dual encontrado
+## Sem soluções inteiras

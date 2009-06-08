@@ -37,20 +37,21 @@ class ColumnGeneration {
   std::vector<IntegerProgram*> ipPricing; // facilita atualizacao custos
   int tPMR;
   
-  // so pra compilar, depois vejo
   int xpress_ret;
   double tempo, tempoLP, tempoPricing;
   double z_PMR;
-  double melhorPrimal;
-  int totalInteiros;
-  int itmelhorPrimal;
-  int it;
 
 protected:
   inline bool isIntegerSol(XPRSprob prob);
   double *getNewObj(int pindex, int *mindex);
 
 public:
+  double melhorPrimal;
+  int totalInteiros;
+  int itmelhorPrimal;
+  int it;
+
+
   ColumnGeneration(IntegerProgram &, std::vector<IntegerProgram*>&);
   int loadModel(IntegerProgram&, XPRSprob, std::string);
   void solveRestricted(); 

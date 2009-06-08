@@ -274,6 +274,13 @@ int main(int argc, char* argv[]) {
     time_t now = time(&now);
     if (now - start > 20*60) break;
   }
+
+  if (cg.totalInteiros > 0) {
+    printf("## Melhor solução inteira: %d\n",(int) cg.melhorPrimal);
+  }
+  else {
+    printf("## Sem soluções inteiras\n");
+  }
   
   return 0;
 }
