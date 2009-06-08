@@ -179,18 +179,16 @@ double ULS::solve(std::vector <double>& piAk, std::vector <double>& sol) {
     for(int j=f-1;j>=0;j--) {
       if (C[j][f-1] == melhor[f]) {
 	/* produziu em j a demanda de todo mundo entre j e f-1 */
-	sol[2*instance.t + j] = 1;
+	int s = 0;
+	for (int k = j; k < f; k++) s += instance.d[k];
+	sol[2*instance.t + j] = 1; // variavel y
+	sol[j] = melhor[f];	   // variavel x
+	sol[instance.t + j] = s;   // variavel s
 	next = j;
 	break;
       }
     }
   }
-  for(int i = 0;i<instance.t;i++) {
-    if (sol[2*instance.t + i] > 0.3)
-      ;
-      // fprintf(stderr,"Produziu em %d\n",i);
-  }
 
-  // fprintf(stderr,"Opt: %6.1lf\n",melhor[instance.t]);
   return (melhor[instance.t]);
 }
