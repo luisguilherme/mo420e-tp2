@@ -29,6 +29,7 @@ ColumnGeneration::ColumnGeneration(IntegerProgram &ip, std::vector<IntegerProgra
   /* inicializa valores de variaveis globais */
   tPMR = 0;
   it = 0;
+  totalInteiros = 0;
 
   printf("\n==========================\nOtimizacao do LP e IP");
 }
