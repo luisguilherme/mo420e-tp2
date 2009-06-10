@@ -153,45 +153,31 @@ double ULS::solve(std::vector <double>& piAk, std::vector <double>& sol) {
   melhor[0] = 0;
   for(int f=1;f<=instance.t;f++) {
     melhor[f] = C[0][f-1] + melhor[0];
+    pai[f-1] = 0;
     for(int i=1;i<f;i++) {
-      melhor[f] = std::min(melhor[f],C[i][f-1] + melhor[i]);
-    }
-  }
-
-  // for(int m=1;m<instance.t;m++) {
-  //   for(int i=0;i<instance.t && i < m;i++) {
-  //     for(int j=m+1;j<=instance.t;j++) {
-  // 	if (C[i][j] > C[i][m] + C[m][j]) {
-  // 	  C[i][j] = C[i][m] + C[m][j];
-  // 	  fprintf(stderr,"Produzir em %d e %d pra cumprir demanda até %d é melhor que só em %d\n",
-  // 		  i,m,j,i);
-  // 	}
-  //     }
-  //   }
-  // }
-
-  sol = std::vector<double>(3*instance.t);
-  /* Constrói vetor {x,s,y} */
-  int next = instance.t-1;
-  for(int f=instance.t;f>0;f=next) {
-
-    next = 0;
-    for(int j=f-1;j>=0;j--) {
-      if (C[j][f-1] == melhor[f]) {
-	/* produziu em j a demanda de todo mundo entre j e f-1 */
-	int s = 0;
-	for (int k = j; k < f; k++) { s += instance.d[k]; }
-	sol[2*instance.t + j] = 1; // variavel y
-	sol[j] = s;	   // variavel x
-	for (int k = j;k < f;k++) {
-	  sol[2*instance.t + k] = s;
-	  s -= instance.d[k+1];
-	}
-	next = j;
-	break;
+      if (melhor[f] > C[i][f-1] + melhor[i]) {
+	pai[f-1] = i;
+	melhor[f] = C[i][f-1] + melhor[i];
       }
     }
   }
+  
+  sol = std::vector<double>(3*instance.t);
+  /* Constrói vetor {x,s,y} */
 
+  int next = instance.t-1;
+  for(int f=instance.t-1;f>=0;f=next-1) {
+    next = pai[f];
+    /* produziu em next para atender a demanda de next até f */
+    sol[2*instance.t + next] = 1; // variável y
+    int dem = instance.d[f];
+    for(int j=f-1;j>=next;j--) {
+      /* estoque */
+      sol[instance.t + j] = dem;
+      dem += instance.d[j];
+    }
+    /* produziu para atender todas as demandas, de next até f, inclusive */
+    sol[next] = dem;
+  }
   return (melhor[instance.t]);
 }
