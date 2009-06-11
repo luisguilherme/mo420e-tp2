@@ -15,7 +15,7 @@
    }
 */
 
-ColumnGeneration::ColumnGeneration(IntegerProgram &ip, std::vector<IntegerProgram*> &pricing)
+ColumnGeneration::ColumnGeneration(IntegerProgram &ip, std::vector<IntegerProgram*> &pricing, int test_type=1)
    : ipMestre(ip) {
 
   /* ========================================= */
@@ -31,6 +31,7 @@ ColumnGeneration::ColumnGeneration(IntegerProgram &ip, std::vector<IntegerProgra
   it = 0;
   totalInteiros = 0;
   melhorPrimal = +INF;
+  this->test_type = test_type;
 
   printf("\n==========================\nOtimizacao do LP e IP");
 }
@@ -132,24 +133,31 @@ int ColumnGeneration::solvePricing() {
     /* resolve o sub de pricing */
     /* uma vez maximizado, perde a base inicial, e o problema tem que
        ser carregado de novo? */
+
     /* reinicializa o prob de pricing */
     XPRSinitglobal(probPricing[k]);
-
+    
     /* seta novos coeficientes na funcao objetivo */
     XPRSchgobj(probPricing[k], ncols, mindex, obj_pricing);
-
+    
     /* reinicializa a melhor solucao */
     sol.zstar = XPRS_PLUSINFINITY;
     xpress_ret = XPRSsetdblcontrol(probPricing[k], XPRS_MIPABSCUTOFF, sol.zstar);
 
-    std::vector<double> sollll;
-    ipPricing[k]->solve(piAk,sollll);    
-    t1=clock();
-    xpress_ret = XPRSminim(probPricing[k], "g"); /* g = algoritmo de busca B&B
+    if(test_type == 1) { // usa XPRESS pra resolver o PLI
+      t1=clock();
+      xpress_ret = XPRSminim(probPricing[k], "g"); /* g = algoritmo de busca B&B
 						    NULL = PL */
-    t2=clock();
+      t2=clock();
     // fprintf(stderr,"SOL: %.6lf\n", sol.zstar);
+    }
+    else { // test_type == 2: usa W&W pra resolver
+      t1=clock();
+      sol.zstar = ipPricing[k]->solve(piAk,sol.xstar);
+      t2=clock();
+    }
 
+    
     /* verifica se coluna deve ser adicionada ao PMR */
     double zstar = sol.zstar - dual[nrows+k];
     if (fabs(zstar) < EPSILON) {

@@ -238,6 +238,15 @@ public:
 };
 
 int main(int argc, char* argv[]) {
+  if (argc < 3) {
+    fprintf(stderr,"Formato de chamada: %s <entrada> <teste>\n",argv[0]);
+    fprintf(stderr,"Teste pode ser: 1 - pricing resolvido por PLI via XPRESS\n");
+    fprintf(stderr,"                2 - pricing resolvido por algoritmo exato (Wagner & Within)");
+      
+    return(-1);
+  }
+  
+  
   time_t start = time(&start);
   FILE* fp = fopen(argv[1], "r");
   MILSPInstance mi;
@@ -246,6 +255,7 @@ int main(int argc, char* argv[]) {
 
   MILSP prob(mi);
 
+  int test_type = atoi(argv[2]);
   std::vector<IntegerProgram*> pricing;
 
   // gera subproblemas de pricing para MILSP (um ULS para cada produto)
@@ -261,7 +271,7 @@ int main(int argc, char* argv[]) {
 					  mi.p[i])));
   }
 
-  ColumnGeneration cg(prob, pricing);
+  ColumnGeneration cg(prob, pricing,test_type);
 
   cg.configureModel(0, prob, pricing);
   bool goon = true;
