@@ -149,14 +149,14 @@ int ColumnGeneration::solvePricing() {
       xpress_ret = XPRSminim(probPricing[k], "g"); /* g = algoritmo de busca B&B
 						    NULL = PL */
       t2=clock();
-    // fprintf(stderr,"SOL: %.6lf\n", sol.zstar);
     }
     else { // test_type == 2: usa W&W pra resolver
       t1=clock();
       sol.zstar = ipPricing[k]->solve(piAk,sol.xstar);
       t2=clock();
     }
-
+    fprintf(stderr,"SOL: %.6lf\n", sol.zstar);
+ 
     
     /* verifica se coluna deve ser adicionada ao PMR */
     double zstar = sol.zstar - dual[nrows+k];
