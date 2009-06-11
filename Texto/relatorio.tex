@@ -100,8 +100,7 @@ Simplex em subrotinas que calculam limitantes.
 Como se conhece uma formulação compacta que descreve a envoltória
 convexa do ULS é de se esperar que se tenham algoritmos combinatórios
 para resolvê-lo, que é o caso. O algoritmo de Wagner e Within foi
-implementado em $O(n^3)$, utilizando ideias presentes no algoritmo de
-Floyd-Warshall para grafos.
+implementado em $O(n^2)$.
 
 Preocupamo-nos em escrever um código que fosse reutilizável, isto é,
 dado um novo par ``problema mestre''-``problema restrito'', basta
@@ -110,6 +109,15 @@ poderemos utilizar nosso código sem outras alterações para fazer a
 geração de colunas via XPress.
 
 \section{Análise de resultados}
+Muito provavelmente devido à escolha inicial de colunas, muitos testes
+apresentaram resultados muito altos. No diretório Testes do trabalho,
+além da saída completa, poder-se-á ver a evolução das iterações e o
+resultado final. 
+
+Comparando resultados de solução optima entre T1 e T2 encontramos
+resultados muitas vezes idênticos. Contudo, T1 não nos dá a garantia de
+uma solução ótima. Infelizmente não conseguimos fazer testes mais
+aprofundados com T2 para comparar os resultados.
 
 \bibliographystyle{alpha}
 \bibliography{relatorio}
