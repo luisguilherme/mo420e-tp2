@@ -283,8 +283,9 @@ int main(int argc, char* argv[]) {
   else {
     printf("## Sem soluções inteiras\n");
   }
+
   time_t now = time(&now);
-  printf("TEMPO TOTAL: %02d:%02d\n",(now-start)/60,(now-start)%60);
+  printf("TEMPO TOTAL: %02ld:%02ld\n",(now-start)/60,(now-start)%60);
   
   return 0;
 }
