@@ -119,6 +119,40 @@ resultados muitas vezes idênticos. Contudo, T1 não nos dá a garantia de
 uma solução ótima. Infelizmente não conseguimos fazer testes mais
 aprofundados com T2 para comparar os resultados.
 
+\section{Limitantes Duais e Primais}
+
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c||c|c|c|}
+\hline
+Instância & Lim. Dual & Lim. Primal & Instância & Lim. Dual & Lim. Primal \\
+\hline
+test0120.0 & 480896.047 & 143179158 & test0351.0 & 324970.969 & 45998390 \\
+test0120.3 & 3363520.820 & $\infty$ & test0351.3 & 1873280.100 & 329753654 \\
+test0121.0 & 480889.553 & 143179158 & \underline{test0352.0} & 222819.000 & 222819 \\
+test0121.3 & 3362710.108 & 3403193 & test0352.3 & 1266895.667 & 1428860 \\
+test0122.0 & 344639.273 & 104603408 & test0353.0 & 229579.690 & 11776115 \\
+test0122.3 & 2372076.235 & 463382663 & \underline{test0353.3} & 1319711.000 & 1319711 \\
+test0123.0 & 344591.388 & 104603408 & test0354.0 & 377573.016 & 87463011 \\
+test0123.3 & 2371498.517 & 463382663 & test0354.3 & 2169185.081 & $\infty$ \\
+test0124.0 & 344576.973 & 104603408 & test0355.0 & 279773.419 & 41127791 \\
+test0124.3 & 2371344.766 & 463382663 & test0355.3 & 1569293.198 & 286818785 \\
+\underline{test0331.0} & 75111.000 & 75111 & \underline{test0356.0} & 1147290.000 & 1147290 \\
+\underline{test0331.3} & 581191.000 & 581191 & \underline{test0356.3} & 6415886.000 & 6415886 \\
+test0332.0 & 74411.775 & 17164456 & test0357.0 & 901376.500 & 903977 \\
+test0332.3 & 558901.001 & 157261626 & \underline{test0357.3} & 5214907.000 & 5214907 \\
+test0333.0 & 86497.000 & 86496 & \underline{test0358.0} & 973344.000 & 973344 \\
+test0333.3 & 698397.554 & 698536 & test0358.3 & 5632095.000 & 5632094 \\
+test0334.0 & 83467.000 & 19549042 & \underline{test0359.0} & 1127352.000 & 1127352 \\
+\underline{test0334.3} & 677190.000 & 677190 & test0359.3 & 6438016.000 & 6439752 \\
+test0335.0 & 84536.983 & 90550 & \underline{test0360.0} & 1053007.000 & 1053007 \\
+\underline{test0335.3} & 629628.000 & 629628 & test0360.3 & 6091044.667 & 6116917 \\
+\hline
+\end{tabular}
+\caption{Melhores limitantes duais e primais encontrados}
+\label{tb:lpld}
+\end{table}
+
 \bibliographystyle{alpha}
 \bibliography{relatorio}
 
