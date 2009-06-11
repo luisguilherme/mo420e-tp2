@@ -138,7 +138,7 @@ double ULS::solve(std::vector <double>& piAk, std::vector <double>& sol) {
     int stock = 0;
     int acc = 0;
     pai[i] = i;
-    C[i] = std::vector<double>(instance.t);
+    C[i] = std::vector<double>(instance.t,0);
     for(int j=i;j<instance.t;j++) {
       tdem += instance.d[j];
       acc += instance.d[j]*stock;
@@ -162,7 +162,7 @@ double ULS::solve(std::vector <double>& piAk, std::vector <double>& sol) {
     }
   }
   
-  sol = std::vector<double>(3*instance.t);
+  sol = std::vector<double>(3*instance.t,0);
   /* Constrói vetor {x,s,y} */
 
   int next = instance.t-1;

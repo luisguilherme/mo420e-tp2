@@ -40,6 +40,7 @@ class ColumnGeneration {
   int xpress_ret;
   double tempo, tempoLP, tempoPricing;
   double z_PMR;
+  int test_type;
 
   std::vector<double> piAk;
 
@@ -54,7 +55,7 @@ public:
   int it;
 
 
-  ColumnGeneration(IntegerProgram &, std::vector<IntegerProgram*>&);
+  ColumnGeneration(IntegerProgram &, std::vector<IntegerProgram*>&, int test_type);
   int loadModel(IntegerProgram&, XPRSprob, std::string);
   void solveRestricted(); 
   int solvePricing(); //retorna número de colunas criadas
