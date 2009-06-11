@@ -137,7 +137,6 @@ double ULS::solve(std::vector <double>& piAk, std::vector <double>& sol) {
     int tdem = 0;
     int stock = 0;
     int acc = 0;
-    pai[i] = i;
     C[i] = std::vector<double>(instance.t,0);
     for(int j=i;j<instance.t;j++) {
       tdem += instance.d[j];
@@ -156,7 +155,7 @@ double ULS::solve(std::vector <double>& piAk, std::vector <double>& sol) {
     pai[f-1] = 0;
     for(int i=1;i<f;i++) {
       if (melhor[f] > C[i][f-1] + melhor[i]) {
-	pai[f-1] = i;
+	pai[f-1] = i; /* o melhor foi produzir de i até f-1 somando com o que já tinha em i */
 	melhor[f] = C[i][f-1] + melhor[i];
       }
     }
@@ -169,15 +168,19 @@ double ULS::solve(std::vector <double>& piAk, std::vector <double>& sol) {
   for(int f=instance.t-1;f>=0;f=next-1) {
     next = pai[f];
     /* produziu em next para atender a demanda de next até f */
-    sol[2*instance.t + next] = 1; // variável y
     int dem = instance.d[f];
     for(int j=f-1;j>=next;j--) {
       /* estoque */
       sol[instance.t + j] = dem;
       dem += instance.d[j];
     }
+    
     /* produziu para atender todas as demandas, de next até f, inclusive */
     sol[next] = dem;
+    if (dem > EPSILON)
+      sol[2*instance.t + next] = 1;
+
+
   }
   return (melhor[instance.t]);
 }

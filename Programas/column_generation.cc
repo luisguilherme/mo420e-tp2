@@ -155,8 +155,7 @@ int ColumnGeneration::solvePricing() {
       sol.zstar = ipPricing[k]->solve(piAk,sol.xstar);
       t2=clock();
     }
-    fprintf(stderr,"SOL: %.6lf\n", sol.zstar);
- 
+    
     
     /* verifica se coluna deve ser adicionada ao PMR */
     double zstar = sol.zstar - dual[nrows+k];
